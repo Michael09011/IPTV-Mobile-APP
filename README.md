@@ -1,4 +1,4 @@
-# Minimal TV - 안드로이드 IPTV 어플리케이션
+# Minimal TV - Android IPTV application
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue) ![Android](https://img.shields.io/badge/Android-15-green) ![Gradle](https://img.shields.io/badge/Gradle-9.0.0-blue)
 
