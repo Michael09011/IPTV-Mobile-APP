@@ -49,5 +49,10 @@ com.example.minimaltv
 *   **언어**: Kotlin 2.0.21
 *   **타겟 SDK**: 35 (Android 15)
 
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 있습니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+
 ---
-*Michael
+
+Copyright © 2026 Michael. All rights reserved.
