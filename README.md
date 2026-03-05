@@ -49,14 +49,5 @@ com.example.minimaltv
 *   **언어**: Kotlin 2.0.21
 *   **타겟 SDK**: 35 (Android 15)
 
-## 🚀 빌드 가이드
-
-```sh
-# 서명되지 않은 디버그 APK 빌드
-./gradlew clean assembleDebug
-```
-
-*   **APK 경로**: `app/build/outputs/apk/debug/app-debug.apk`
-
 ---
 *Michael
