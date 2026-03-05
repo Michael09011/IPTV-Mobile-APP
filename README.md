@@ -1,5 +1,8 @@
 # Minimal TV - 안드로이드 IPTV 어플리케이션
-![Screenshot_20260305_165948](https://github.com/user-attachments/assets/b5b27858-6db6-4a0f-956a-54a20decd698)
+
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue) ![Android](https://img.shields.io/badge/Android-15-green) ![Gradle](https://img.shields.io/badge/Gradle-9.0.0-blue)
+
+<img src="https://github.com/user-attachments/assets/b5b27858-6db6-4a0f-956a-54a20decd698" width="300" alt="Screenshot">
 
 Minimal TV는 고성능 미디어 엔진과 세련된 Jetpack Compose UI를 결합한 차세대 IPTV 플레이어입니다. 사용자 중심의 와이어프레임 설계를 바탕으로 **안드로이드 15(API 35)** 환경에 완벽 최적화되었습니다.
 
@@ -40,10 +43,11 @@ com.example.minimaltv
 
 ## 🛠 기술 스택
 
-*   **UI**: Jetpack Compose (Material 3), **Coil (Image Loading)**
-*   **Media**: Androidx Media3 (ExoPlayer + **HLS 모듈**)
-*   **Language**: Kotlin 2.0.21
-*   **Target SDK**: 35 (Android 15)
+*   **프론트엔드**: Android (Jetpack Compose, Material 3, Coil)
+*   **백엔드**: 없음 (클라이언트 전용 앱)
+*   **미디어 엔진**: Androidx Media3 (ExoPlayer + HLS 모듈)
+*   **언어**: Kotlin 2.0.21
+*   **타겟 SDK**: 35 (Android 15)
 
 ## 🚀 빌드 가이드
 
