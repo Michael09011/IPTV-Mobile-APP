@@ -1,4 +1,4 @@
-# Minimal TV - 안드로이드 IPTV APP
+# Minimal TV - 안드로이드 IPTV 어플리케이션
 ![Screenshot_20260305_165948](https://github.com/user-attachments/assets/b5b27858-6db6-4a0f-956a-54a20decd698)
 
 Minimal TV는 고성능 미디어 엔진과 세련된 Jetpack Compose UI를 결합한 차세대 IPTV 플레이어입니다. 사용자 중심의 와이어프레임 설계를 바탕으로 **안드로이드 15(API 35)** 환경에 완벽 최적화되었습니다.
