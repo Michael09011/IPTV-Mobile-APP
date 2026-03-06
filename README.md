@@ -49,6 +49,51 @@ com.example.minimaltv
 *   **언어**: Kotlin 2.0.21
 *   **타겟 SDK**: 35 (Android 15)
 
+## 🚀 빌드 가이드 (Build Guide)
+
+이 프로젝트를 로컬 환경에서 빌드하고 실행하려면 다음 단계를 따르세요.
+
+### 1. 사전 요구 사항
+*   **Android Studio**: Ladybug (2024.2.1) 이상 권장
+*   **JDK**: 17 또는 21 버전
+*   **Gradle**: 9.0.0 (프로젝트에 포함된 Gradle Wrapper 사용)
+
+### 2. 프로젝트 복제
+```bash
+git clone https://github.com/michael/IPTV-Mobile-APP.git
+cd IPTV-Mobile-APP
+```
+
+### 3. IDE에서 빌드
+1.  Android Studio를 실행하고 **Open**을 선택합니다.
+2.  `IPTV-Mobile-APP` 디렉토리를 선택하여 엽니다.
+3.  Gradle Sync가 완료될 때까지 기다립니다.
+4.  상단 도구 모음에서 **Run 'app'** 버튼을 클릭하여 실행합니다.
+
+### 4. 터미널 명령어로 빌드 (CLI)
+IDE 없이 터미널에서 직접 빌드하려면 다음 명령어를 사용하세요.
+
+*   **APK 빌드 (Debug)**:
+    ```bash
+    ./gradlew assembleDebug
+    ```
+*   **기기에 설치**:
+    ```bash
+    ./gradlew installDebug
+    ```
+*   **프로젝트 클린**:
+    ```bash
+    ./gradlew clean
+    ```
+*   **유닛 테스트 실행**:
+    ```bash
+    ./gradlew test
+    ```
+
+### 5. 문제 해결
+*   `local.properties` 파일이 없는 경우, 프로젝트 루트에 직접 생성하고 `sdk.dir` 경로를 설정해야 할 수 있습니다.
+*   Gradle 권한 문제가 발생하면 `chmod +x gradlew` 명령어를 실행하세요.
+
 ## 📄 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 있습니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.

@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,11 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.minimaltv.R
 import com.example.minimaltv.data.model.Channel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,17 +39,18 @@ fun ChannelListScreen(
     onFavoriteToggle: (Channel) -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf("전체") }
+    val allCategoryLabel = stringResource(R.string.channel_category_all)
+    var selectedCategory by remember { mutableStateOf(allCategoryLabel) }
     var isSearchMode by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     
-    val categories = remember(channels) {
-        listOf("전체") + channels.map { it.category }.distinct().sorted()
+    val categories = remember(channels, allCategoryLabel) {
+        listOf(allCategoryLabel) + channels.map { it.category }.distinct().sorted()
     }
 
-    val categoryFiltered = remember(selectedCategory, channels) {
-        if (selectedCategory == "전체") channels 
+    val categoryFiltered = remember(selectedCategory, channels, allCategoryLabel) {
+        if (selectedCategory == allCategoryLabel) channels 
         else channels.filter { it.category == selectedCategory }
     }
 
@@ -65,7 +67,7 @@ fun ChannelListScreen(
                         TextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
-                            placeholder = { Text("채널 검색...") },
+                            placeholder = { Text(stringResource(R.string.channel_search_placeholder)) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
@@ -81,7 +83,7 @@ fun ChannelListScreen(
                     } else {
                         Column {
                             Text(categoryName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            if (selectedCategory != "전체") {
+                            if (selectedCategory != allCategoryLabel) {
                                 Text(selectedCategory, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                             }
                         }
@@ -96,20 +98,20 @@ fun ChannelListScreen(
                             onBackClick()
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로가기")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.channel_back))
                     }
                 },
                 actions = {
                     if (!isSearchMode) {
                         IconButton(onClick = { isSearchMode = true }) {
-                            Icon(Icons.Default.Search, contentDescription = "검색")
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.favorites_search))
                         }
                         Box {
                             IconButton(onClick = { showMenu = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "더보기")
+                                Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.common_more))
                             }
                             DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                                Text("카테고리 필터", modifier = Modifier.padding(16.dp, 8.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                                Text(stringResource(R.string.channel_filter_title), modifier = Modifier.padding(16.dp, 8.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                                 categories.forEach { category ->
                                     DropdownMenuItem(
                                         text = { Text(category) },
@@ -126,7 +128,7 @@ fun ChannelListScreen(
                         }
                     } else {
                         IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "지우기")
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.channel_clear_search))
                         }
                     }
                 }
@@ -139,7 +141,11 @@ fun ChannelListScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (searchQuery.isEmpty()) "총 ${filteredChannels.size}개의 채널" else "'${searchQuery}' 검색 결과: ${filteredChannels.size}개",
+                    text = if (searchQuery.isEmpty()) {
+                        stringResource(R.string.channel_total_count, filteredChannels.size)
+                    } else {
+                        stringResource(R.string.channel_search_result, searchQuery, filteredChannels.size)
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -185,7 +191,7 @@ fun ChannelListItem(channel: Channel, onClick: () -> Unit, onFavoriteToggle: () 
         IconButton(onClick = onFavoriteToggle) {
             Icon(
                 imageVector = if (channel.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = "즐겨찾기",
+                contentDescription = stringResource(R.string.channel_favorite_toggle),
                 tint = if (channel.isFavorite) Color.Red else MaterialTheme.colorScheme.outline
             )
         }

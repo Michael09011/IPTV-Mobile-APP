@@ -26,6 +26,9 @@ interface ChannelDao {
     @Query("SELECT * FROM channels WHERE isFavorite = 1")
     fun getFavoriteChannels(): Flow<List<Channel>>
 
+    @Query("SELECT * FROM channels WHERE playlistId = :playlistId AND isFavorite = 1")
+    suspend fun getFavoriteChannelsByPlaylistSync(playlistId: String): List<Channel>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChannels(channels: List<Channel>)
 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_playlist">追加</string>
+    <string name="app_name">Minimal TV</string>
+    <string name="cancel">キャンセル</string>
+    <string name="delete_playlist">削除</string>
+    <string name="nav_favorites">お気に入り</string>
+    <string name="nav_playlist">再生リスト</string>
+    <string name="nav_settings">設定</string>
+    <string name="player_back">戻る</string>
+    <string name="player_next">次へ</string>
+    <string name="player_no_info">チャンネル情報なし</string>
+    <string name="player_now_playing">現在再生中: %s</string>
+    <string name="player_prev">前へ</string>
+    <string name="playlist_name">リスト名</string>
+    <string name="playlist_url">M3U URLアドレス</string>
+    <string name="refresh_playlist">更新</string>
+    <string name="rename_playlist">名前の変更</string>
+    <string name="save">保存</string>
+    <string name="settings_epg">EPG情報の表示</string>
+    <string name="settings_epg_desc">チャンネルリストとプレイヤーに番組情報を表示します。</string>
+    <string name="settings_epg_source">EPGソース設定</string>
+    <string name="settings_general">一般</string>
+    <string name="settings_hw_accel">ハードウェアアクセラレーション</string>
+    <string name="settings_hw_accel_desc">再生パフォーマンス向上のためにGPUを使用します。</string>
+    <string name="settings_info">情報</string>
+    <string name="settings_language">言語設定</string>
+    <string name="settings_latest_version">最新バージョンを使用中</string>
+    <string name="settings_playback">再生とパフォーマンス</string>
+    <string name="settings_version">バージョン情報</string>
+</resources>

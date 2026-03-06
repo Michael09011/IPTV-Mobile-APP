@@ -14,8 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.minimaltv.R
 import com.example.minimaltv.data.model.Playlist
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,7 +29,7 @@ fun PlaylistScreen(
     onDeletePlaylist: (Playlist) -> Unit,
     onRefreshPlaylist: (Playlist) -> Unit,
     onRenamePlaylist: (Playlist, String) -> Unit,
-    onRefreshAll: () -> Unit // 누락된 매개변수 추가
+    onRefreshAll: () -> Unit
 ) {
     var showTopMenu by remember { mutableStateOf(false) }
     var playlistToRename by remember { mutableStateOf<Playlist?>(null) }
@@ -36,12 +38,12 @@ fun PlaylistScreen(
     if (playlistToRename != null) {
         AlertDialog(
             onDismissRequest = { playlistToRename = null },
-            title = { Text("이름 수정") },
+            title = { Text(stringResource(R.string.rename_playlist)) },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
-                    label = { Text("플레이리스트 이름") },
+                    label = { Text(stringResource(R.string.playlist_name)) },
                     singleLine = true
                 )
             },
@@ -49,10 +51,10 @@ fun PlaylistScreen(
                 Button(onClick = {
                     onRenamePlaylist(playlistToRename!!, newName)
                     playlistToRename = null
-                }) { Text("저장") }
+                }) { Text(stringResource(R.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { playlistToRename = null }) { Text("취소") }
+                TextButton(onClick = { playlistToRename = null }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -60,18 +62,18 @@ fun PlaylistScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Minimal TV", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = onAddClick) {
-                        Icon(Icons.Default.Add, contentDescription = "추가")
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_playlist))
                     }
                     Box {
                         IconButton(onClick = { showTopMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "더보기")
+                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.common_more))
                         }
                         DropdownMenu(expanded = showTopMenu, onDismissRequest = { showTopMenu = false }) {
                             DropdownMenuItem(
-                                text = { Text("전체 업데이트") },
+                                text = { Text(stringResource(R.string.playlist_update_all)) },
                                 onClick = { onRefreshAll(); showTopMenu = false },
                                 leadingIcon = { Icon(Icons.Default.Refresh, contentDescription = null) }
                             )
@@ -92,13 +94,17 @@ fun PlaylistScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "저장된 플레이리스트", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(text = "${playlists.size}개 항목", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                Text(text = stringResource(R.string.playlist_saved_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(
+                    text = stringResource(R.string.playlist_items_count, playlists.size), 
+                    style = MaterialTheme.typography.bodyMedium, 
+                    color = MaterialTheme.colorScheme.outline
+                )
             }
 
             if (playlists.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text("추가된 플레이리스트가 없습니다.", color = MaterialTheme.colorScheme.outline)
+                    Text(stringResource(R.string.playlist_empty), color = MaterialTheme.colorScheme.outline)
                 }
             } else {
                 LazyColumn(
@@ -146,26 +152,30 @@ fun PlaylistCard(playlist: Playlist, onClick: () -> Unit, onDelete: () -> Unit, 
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = playlist.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(text = "${playlist.channelCount} 채널", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                Text(
+                    text = stringResource(R.string.playlist_channels_count, playlist.channelCount), 
+                    style = MaterialTheme.typography.bodySmall, 
+                    color = MaterialTheme.colorScheme.outline
+                )
                 Text(text = playlist.url, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline, maxLines = 1)
             }
             Box {
                 IconButton(onClick = { showItemMenu = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "옵션", tint = MaterialTheme.colorScheme.outline)
+                    Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.common_options), tint = MaterialTheme.colorScheme.outline)
                 }
                 DropdownMenu(expanded = showItemMenu, onDismissRequest = { showItemMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text("이름 수정") },
+                        text = { Text(stringResource(R.string.rename_playlist)) },
                         onClick = { onRename(); showItemMenu = false },
                         leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
                     )
                     DropdownMenuItem(
-                        text = { Text("업데이트") },
+                        text = { Text(stringResource(R.string.refresh_playlist)) },
                         onClick = { onRefresh(); showItemMenu = false },
                         leadingIcon = { Icon(Icons.Default.Refresh, contentDescription = null) }
                     )
                     DropdownMenuItem(
-                        text = { Text("삭제", color = Color.Red) },
+                        text = { Text(stringResource(R.string.delete_playlist), color = Color.Red) },
                         onClick = { onDelete(); showItemMenu = false },
                         leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) }
                     )

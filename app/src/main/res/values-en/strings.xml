@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Minimal TV</string>
+
+    <!-- Navigation -->
+    <string name="nav_playlist">Playlist</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Playlist -->
+    <string name="add_playlist">Add</string>
+    <string name="delete_playlist">Delete</string>
+    <string name="refresh_playlist">Refresh</string>
+    <string name="rename_playlist">Rename</string>
+    <string name="playlist_name">Playlist Name</string>
+    <string name="playlist_url">M3U URL Address</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Settings -->
+    <string name="settings_general">General</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_playback">Playback &amp; Performance</string>
+    <string name="settings_hw_accel">Hardware Acceleration</string>
+    <string name="settings_hw_accel_desc">Uses GPU to improve playback performance.</string>
+    <string name="settings_epg">Show EPG Info</string>
+    <string name="settings_epg_desc">Displays program info in channel list and player.</string>
+    <string name="settings_epg_source">EPG Source Settings</string>
+    <string name="settings_info">Information</string>
+    <string name="settings_version">Version Info</string>
+    <string name="settings_latest_version">Using latest version</string>
+
+    <!-- Player -->
+    <string name="player_no_info">No channel info</string>
+    <string name="player_now_playing">Now Playing: %s</string>
+    <string name="player_back">Back</string>
+    <string name="player_next">Next</string>
+    <string name="player_prev">Prev</string>
+</resources>

@@ -13,6 +13,7 @@ import com.example.minimaltv.data.parser.M3uParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.URL
 import java.util.UUID
 
@@ -86,7 +87,9 @@ class TvViewModel(application: Application) : AndroidViewModel(application) {
                 val playlist = Playlist(id = playlistId, name = name, url = url, channelCount = channels.size)
                 playlistDao.insertPlaylist(playlist)
                 channelDao.insertChannels(channels)
+                showToast("플레이리스트 추가 완료: ${channels.size}개 채널")
             } catch (e: Exception) {
+                showToast("추가 실패: URL을 확인해주세요.")
                 e.printStackTrace()
             }
         }
@@ -102,8 +105,10 @@ class TvViewModel(application: Application) : AndroidViewModel(application) {
                     val playlist = Playlist(id = playlistId, name = name, url = uri.toString(), channelCount = channels.size)
                     playlistDao.insertPlaylist(playlist)
                     channelDao.insertChannels(channels)
+                    showToast("파일 추가 완료: ${channels.size}개 채널")
                 }
             } catch (e: Exception) {
+                showToast("파일 불러오기 실패")
                 e.printStackTrace()
             }
         }
@@ -137,9 +142,40 @@ class TvViewModel(application: Application) : AndroidViewModel(application) {
                 channelDao.deleteChannelsByPlaylist(playlist.id)
                 channelDao.insertChannels(channels)
                 playlistDao.insertPlaylist(playlist.copy(channelCount = channels.size))
+                showToast("${playlist.name} 업데이트 완료")
             } catch (e: Exception) {
+                showToast("${playlist.name} 업데이트 실패")
                 e.printStackTrace()
             }
+        }
+    }
+
+    fun refreshAllPlaylists() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentPlaylists = _playlists.value
+            var successCount = 0
+            var failCount = 0
+            
+            currentPlaylists.forEach { playlist ->
+                try {
+                    val content = URL(playlist.url).readText()
+                    val channels = M3uParser.parse(content, playlist.id)
+                    channelDao.deleteChannelsByPlaylist(playlist.id)
+                    channelDao.insertChannels(channels)
+                    playlistDao.insertPlaylist(playlist.copy(channelCount = channels.size))
+                    successCount++
+                } catch (e: Exception) {
+                    failCount++
+                }
+            }
+            
+            showToast("전체 업데이트 완료 (성공: $successCount, 실패: $failCount)")
+        }
+    }
+
+    private suspend fun showToast(message: String) {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show()
         }
     }
 }

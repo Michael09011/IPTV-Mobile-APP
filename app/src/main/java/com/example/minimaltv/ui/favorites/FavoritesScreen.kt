@@ -1,6 +1,5 @@
 package com.example.minimaltv.ui.favorites
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,7 +9,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,10 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.example.minimaltv.R
 import com.example.minimaltv.data.model.Channel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,10 +35,10 @@ fun FavoritesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("즐겨찾기", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.nav_favorites), fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "검색")
+                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.favorites_search))
                     }
                 }
             )
@@ -58,11 +58,14 @@ fun FavoritesScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "저장된 채널",
+                    text = stringResource(R.string.favorites_saved_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Text("${favoriteChannels.size}개 채널", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = stringResource(R.string.favorites_count, favoriteChannels.size), 
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
             LazyVerticalGrid(
@@ -99,11 +102,11 @@ fun FavoriteChannelCard(channel: Channel, onClick: () -> Unit, onFavoriteToggle:
             .clip(RoundedCornerShape(12.dp))
             .background(Color.DarkGray)
         ) {
-            Image(
-                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                contentDescription = null,
+            AsyncImage(
+                model = channel.thumbnail,
+                contentDescription = "${channel.name} logo",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
             
             Surface(
@@ -145,7 +148,7 @@ fun FavoriteChannelCard(channel: Channel, onClick: () -> Unit, onFavoriteToggle:
             IconButton(onClick = onFavoriteToggle) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
-                    contentDescription = "즐겨찾기 해제",
+                    contentDescription = stringResource(R.string.favorites_remove),
                     tint = Color.Red,
                     modifier = Modifier.size(20.dp)
                 )

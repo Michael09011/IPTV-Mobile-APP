@@ -2,11 +2,12 @@ package com.example.minimaltv
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -24,6 +26,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import com.example.minimaltv.data.local.ThemeMode
 import com.example.minimaltv.ui.TvViewModel
 import com.example.minimaltv.ui.favorites.FavoritesScreen
 import com.example.minimaltv.ui.playlist.PlaylistScreen
@@ -33,7 +36,7 @@ import com.example.minimaltv.ui.player.VideoPlayerScreen
 import com.example.minimaltv.ui.settings.SettingsScreen
 import com.example.minimaltv.ui.theme.MinimalTVTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -43,26 +46,34 @@ class MainActivity : ComponentActivity() {
         )
         
         setContent {
-            MinimalTVTheme {
-                MainScreen()
+            val viewModel: TvViewModel = viewModel()
+            val themeMode by viewModel.settingsManager.themeMode
+            
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+
+            MinimalTVTheme(darkTheme = darkTheme) {
+                MainScreen(viewModel)
             }
         }
     }
 }
 
-sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
-    object Playlist : Screen("playlist", "재생 목록", Icons.Default.List)
-    object Favorites : Screen("favorites", "즐겨찾기", Icons.Default.Favorite)
-    object Settings : Screen("settings", "설정", Icons.Default.Settings)
-    object AddPlaylist : Screen("add_playlist", "추가", Icons.Default.List)
-    object ChannelList : Screen("channel_list/{playlistId}/{playlistName}", "채널 목록", Icons.Default.List)
-    object Player : Screen("player", "플레이어", Icons.Default.List)
+sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVector) {
+    object Playlist : Screen("playlist", R.string.nav_playlist, Icons.Default.List)
+    object Favorites : Screen("favorites", R.string.nav_favorites, Icons.Default.Favorite)
+    object Settings : Screen("settings", R.string.nav_settings, Icons.Default.Settings)
+    object AddPlaylist : Screen("add_playlist", R.string.add_playlist, Icons.Default.List)
+    object ChannelList : Screen("channel_list/{playlistId}/{playlistName}", R.string.app_name, Icons.Default.List)
+    object Player : Screen("player", R.string.app_name, Icons.Default.List)
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: TvViewModel) {
     val navController = rememberNavController()
-    val viewModel: TvViewModel = viewModel()
     val playlists by viewModel.playlists.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
     val selectedChannels by viewModel.selectedChannels.collectAsState()
@@ -70,12 +81,13 @@ fun MainScreen() {
 
     val items = listOf(Screen.Playlist, Screen.Favorites, Screen.Settings)
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-            val showBottomBar = items.any { it.route == currentDestination?.route }
+            val showBottomBar = items.any { it.route == currentRoute }
             
             if (showBottomBar) {
                 NavigationBar(
@@ -85,8 +97,8 @@ fun MainScreen() {
                     items.forEach { screen ->
                         NavigationBarItem(
                             icon = { Icon(screen.icon, contentDescription = null) },
-                            label = { Text(screen.title) },
-                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                            label = { Text(stringResource(screen.titleResId)) },
+                            selected = navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true,
                             onClick = {
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -105,7 +117,7 @@ fun MainScreen() {
             startDestination = Screen.Playlist.route,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(if (currentRoute == Screen.Player.route) PaddingValues(0.dp) else innerPadding)
         ) {
             composable(Screen.Playlist.route) {
                 PlaylistScreen(
@@ -117,7 +129,7 @@ fun MainScreen() {
                     onDeletePlaylist = { viewModel.deletePlaylist(it) },
                     onRefreshPlaylist = { viewModel.refreshPlaylist(it) },
                     onRenamePlaylist = { playlist, newName -> viewModel.renamePlaylist(playlist, newName) },
-                    onRefreshAll = { /* 구현 */ }
+                    onRefreshAll = { viewModel.refreshAllPlaylists() }
                 )
             }
             composable(Screen.AddPlaylist.route) {

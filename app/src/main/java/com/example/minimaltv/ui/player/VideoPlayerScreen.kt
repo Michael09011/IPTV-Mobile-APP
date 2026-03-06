@@ -21,8 +21,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,7 +33,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import com.example.minimaltv.R
 import com.example.minimaltv.data.model.Channel
 import com.example.minimaltv.player.ExoPlayerManager
 
@@ -50,10 +54,12 @@ fun VideoPlayerScreen(
     var isPlaying by remember { mutableStateOf(false) }
     var showControls by remember { mutableStateOf(true) }
     var isLandscape by remember { mutableStateOf(false) }
+    
+    // 화면 비율 상태 (0: FIT, 3: FILL, 4: ZOOM)
+    var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
 
     val activity = remember(context) { context.findActivity() }
 
-    // 재생 상태 모니터링
     DisposableEffect(player) {
         val listener = object : androidx.media3.common.Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
@@ -64,7 +70,6 @@ fun VideoPlayerScreen(
         onDispose { player.removeListener(listener) }
     }
 
-    // 화면 나갈 때: 플레이어 리소스 해제 + 화면 방향 원복 + 시스템 바 다시 표시
     DisposableEffect(Unit) {
         onDispose {
             exoPlayerManager.release()
@@ -78,7 +83,6 @@ fun VideoPlayerScreen(
         }
     }
 
-    // 가로 모드일 때 시스템 바 숨기기 로직
     LaunchedEffect(isLandscape) {
         activity?.let { act ->
             val window = act.window
@@ -105,8 +109,12 @@ fun VideoPlayerScreen(
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     this.player = player
-                    useController = false 
+                    this.useController = false 
+                    this.resizeMode = resizeMode
                 }
+            },
+            update = { view ->
+                view.resizeMode = resizeMode
             },
             modifier = Modifier.fillMaxSize().clickable { showControls = !showControls }
         )
@@ -116,6 +124,7 @@ fun VideoPlayerScreen(
                 channel = channel,
                 isPlaying = isPlaying,
                 isLandscape = isLandscape,
+                resizeMode = resizeMode,
                 onPlayPauseToggle = {
                     if (player.isPlaying) player.pause() else player.play()
                 },
@@ -129,52 +138,106 @@ fun VideoPlayerScreen(
                     } else {
                         ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                     }
+                },
+                onToggleResizeMode = {
+                    resizeMode = when (resizeMode) {
+                        AspectRatioFrameLayout.RESIZE_MODE_FIT -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                        AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> AspectRatioFrameLayout.RESIZE_MODE_FILL
+                        else -> AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    }
                 }
             )
         }
     }
 }
 
+@OptIn(UnstableApi::class)
 @Composable
 fun PlayerControlsOverlay(
     channel: Channel?,
     isPlaying: Boolean,
     isLandscape: Boolean,
+    resizeMode: Int,
     onPlayPauseToggle: () -> Unit,
     onBackClick: () -> Unit,
     onNextChannel: () -> Unit,
     onPrevChannel: () -> Unit,
-    onToggleOrientation: () -> Unit
+    onToggleOrientation: () -> Unit,
+    onToggleResizeMode: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(if (isLandscape) 24.dp else 16.dp)
-            .background(Color.Black.copy(alpha = 0.4f))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Black.copy(alpha = 0.6f),
+                        Color.Transparent,
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.6f)
+                    )
+                )
+            )
     ) {
-        // 상단 바
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        // 상단 바 (상태바 영역 패딩 적용)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .align(Alignment.TopCenter), 
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.player_back), tint = Color.White)
             }
-            Text(text = channel?.name ?: "실시간 스트리밍", color = Color.White, modifier = Modifier.weight(1f))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = channel?.name ?: stringResource(R.string.player_no_info), 
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                if (channel?.currentProgram != null) {
+                    Text(
+                        text = stringResource(R.string.player_now_playing, channel.currentProgram),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 12.sp
+                    )
+                }
+            }
+            
+            // 화면 비율 변경 버튼
+            IconButton(onClick = onToggleResizeMode) {
+                Icon(
+                    imageVector = when (resizeMode) {
+                        AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> Icons.Default.ZoomIn
+                        AspectRatioFrameLayout.RESIZE_MODE_FILL -> Icons.Default.AspectRatio
+                        else -> Icons.Default.FitScreen
+                    },
+                    contentDescription = "화면 비율",
+                    tint = Color.White
+                )
+            }
+
             IconButton(onClick = onToggleOrientation) {
                 Icon(
                     imageVector = if (isLandscape) Icons.Default.FullscreenExit else Icons.Default.Fullscreen, 
-                    contentDescription = "화면 전환", 
+                    contentDescription = stringResource(R.string.player_toggle_screen), 
                     tint = Color.White
                 )
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        // 하단 컨트롤 바
+        // 하단 컨트롤 바 (네비게이션 바 영역 패딩 적용)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(16.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.Black.copy(alpha = 0.6f))
+                .background(Color.Black.copy(alpha = 0.4f))
                 .padding(16.dp)
         ) {
             Row(
@@ -183,24 +246,24 @@ fun PlayerControlsOverlay(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = channel?.name ?: "채널 정보 없음", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(text = channel?.name ?: stringResource(R.string.player_no_info), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Text(text = channel?.category ?: "", color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
                 }
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onPrevChannel) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "이전", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.player_prev), tint = Color.White)
                     }
                     IconButton(onClick = onPlayPauseToggle) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = "재생/일시정지",
+                            contentDescription = stringResource(R.string.player_play_pause),
                             tint = Color.White,
                             modifier = Modifier.size(32.dp)
                         )
                     }
                     IconButton(onClick = onNextChannel) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "다음", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.player_next), tint = Color.White)
                     }
                 }
             }
