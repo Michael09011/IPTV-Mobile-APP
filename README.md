@@ -69,6 +69,18 @@ cd IPTV-Mobile-APP
 1.  Android Studio Ladybug 이상에서 프로젝트 오픈.
 2.  Gradle Sync 완료 후 상단 **Run 'app'** 버튼 클릭.
 
+### 3. 터미널 명령어로 빌드 (CLI)
+IDE 없이 터미널에서 직접 빌드하려면 다음 명령어를 사용하세요.
+
+*   **APK 빌드 (Debug)**:
+    ```bash
+    ./gradlew assembleDebug
+    ```
+*   **기기에 설치**:
+    ```bash
+    ./gradlew installDebug
+    ```
+
 ## 📄 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 있습니다.

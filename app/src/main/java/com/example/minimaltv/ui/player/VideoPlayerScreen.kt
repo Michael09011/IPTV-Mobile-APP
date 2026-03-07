@@ -69,7 +69,6 @@ fun VideoPlayerScreen(
     
     var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
     
-    // findActivity를 확장 함수 대신 직접 안전하게 정의
     val activity = remember(context) {
         var c = context
         while (c is ContextWrapper) {
@@ -138,7 +137,7 @@ fun VideoPlayerScreen(
             }
         )
 
-        // 사이드바 채널 목록 (겹침 방지 여백 추가 및 다국어 지원)
+        // 사이드바 채널 목록 (투명 배경 및 여백 조절)
         AnimatedVisibility(
             visible = showSidebar,
             enter = slideInHorizontally(),
@@ -148,23 +147,24 @@ fun VideoPlayerScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(if (isLandscape) 300.dp else 260.dp)
-                    .background(Color.Black.copy(alpha = 0.5f))
+                    .background(Color.Black.copy(alpha = 0.6f))
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
                 Column {
-                    // 상단 버튼들과 겹치지 않도록 충분한 상단 여백 추가
-                    Spacer(modifier = Modifier.height(72.dp))
+                    // 상단 토글 버튼들과 겹치지 않도록 충분한 상단 여백 확보
+                    Spacer(modifier = Modifier.height(80.dp))
                     
                     Text(
                         text = stringResource(R.string.player_channel_list),
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
                     LazyColumn(
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 24.dp)
                     ) {
                         items(channels) { item ->
                             SidebarChannelItem(
@@ -226,8 +226,8 @@ fun SidebarChannelItem(channel: Channel, isSelected: Boolean, onClick: () -> Uni
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent)
+            .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
@@ -237,7 +237,7 @@ fun SidebarChannelItem(channel: Channel, isSelected: Boolean, onClick: () -> Uni
             contentScale = ContentScale.Fit,
             error = painterResource(id = android.R.drawable.ic_menu_gallery)
         )
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = channel.name,
             color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
@@ -284,7 +284,6 @@ fun PlayerControlsOverlay(
                 )
             )
     ) {
-        // 상단 바
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -363,7 +362,6 @@ fun PlayerControlsOverlay(
             }
         }
 
-        // 하단 컨트롤 바
         Column(
             modifier = Modifier
                 .fillMaxWidth()
