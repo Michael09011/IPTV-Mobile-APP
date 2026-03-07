@@ -73,6 +73,7 @@ class TvViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadChannelsForPlaylist(playlistId: String) {
+        if (_currentPlaylistId.value == playlistId) return
         _currentPlaylistId.value = playlistId
         viewModelScope.launch {
             channelDao.getChannelsByPlaylist(playlistId)
@@ -85,8 +86,17 @@ class TvViewModel(application: Application) : AndroidViewModel(application) {
         _searchQuery.value = query
     }
 
+    fun clearSearchQuery() {
+        _searchQuery.value = ""
+    }
+
     fun selectChannel(channel: Channel) {
         _currentPlayingChannel.value = channel
+        // 채널 선택 시 해당 채널이 속한 플레이리스트를 사이드바용으로 로드 (간섭 방지)
+        if (_currentPlaylistId.value != channel.playlistId) {
+            loadChannelsForPlaylist(channel.playlistId)
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val updatedChannel = channel.copy(lastWatched = System.currentTimeMillis())

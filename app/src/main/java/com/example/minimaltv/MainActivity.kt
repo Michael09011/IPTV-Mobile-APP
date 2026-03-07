@@ -117,11 +117,14 @@ fun MainScreen(viewModel: TvViewModel) {
                 .padding(if (currentRoute == Screen.Player.route) PaddingValues(0.dp) else innerPadding)
         ) {
             composable(Screen.Playlist.route) {
+                // 메인으로 돌아오면 검색 초기화
+                LaunchedEffect(Unit) {
+                    viewModel.clearSearchQuery()
+                }
                 PlaylistScreen(
                     viewModel = viewModel,
                     onAddClick = { navController.navigate(Screen.AddPlaylist.route) },
                     onPlaylistClick = { playlist ->
-                        viewModel.loadChannelsForPlaylist(playlist.id)
                         navController.navigate("channel_list/${playlist.id}/${playlist.name}")
                     },
                     onChannelClick = { channel ->
@@ -154,8 +157,14 @@ fun MainScreen(viewModel: TvViewModel) {
                     navArgument("playlistName") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
+                val playlistId = backStackEntry.arguments?.getString("playlistId") ?: ""
                 val playlistName = backStackEntry.arguments?.getString("playlistName") ?: "채널"
                 
+                // 화면에 진입할 때 해당 플레이리스트 데이터를 다시 로드하여 간섭 방지
+                LaunchedEffect(playlistId) {
+                    viewModel.loadChannelsForPlaylist(playlistId)
+                }
+
                 ChannelListScreen(
                     viewModel = viewModel,
                     categoryName = playlistName,
