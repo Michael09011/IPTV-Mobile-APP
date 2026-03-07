@@ -74,10 +74,7 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
 @Composable
 fun MainScreen(viewModel: TvViewModel) {
     val navController = rememberNavController()
-    val playlists by viewModel.playlists.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
-    val selectedChannels by viewModel.selectedChannels.collectAsState()
-    val currentPlayingChannel by viewModel.currentPlayingChannel.collectAsState()
 
     val items = listOf(Screen.Playlist, Screen.Favorites, Screen.Settings)
 
@@ -121,10 +118,15 @@ fun MainScreen(viewModel: TvViewModel) {
         ) {
             composable(Screen.Playlist.route) {
                 PlaylistScreen(
-                    playlists = playlists,
+                    viewModel = viewModel,
                     onAddClick = { navController.navigate(Screen.AddPlaylist.route) },
                     onPlaylistClick = { playlist ->
+                        viewModel.loadChannelsForPlaylist(playlist.id)
                         navController.navigate("channel_list/${playlist.id}/${playlist.name}")
+                    },
+                    onChannelClick = { channel ->
+                        viewModel.selectChannel(channel)
+                        navController.navigate(Screen.Player.route)
                     },
                     onDeletePlaylist = { viewModel.deletePlaylist(it) },
                     onRefreshPlaylist = { viewModel.refreshPlaylist(it) },
@@ -152,16 +154,11 @@ fun MainScreen(viewModel: TvViewModel) {
                     navArgument("playlistName") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                val playlistId = backStackEntry.arguments?.getString("playlistId") ?: ""
                 val playlistName = backStackEntry.arguments?.getString("playlistName") ?: "채널"
                 
-                LaunchedEffect(playlistId) {
-                    viewModel.loadChannelsForPlaylist(playlistId)
-                }
-
                 ChannelListScreen(
+                    viewModel = viewModel,
                     categoryName = playlistName,
-                    channels = selectedChannels,
                     onBackClick = { navController.popBackStack() },
                     onChannelClick = { channel ->
                         viewModel.selectChannel(channel)
@@ -185,11 +182,8 @@ fun MainScreen(viewModel: TvViewModel) {
             }
             composable(Screen.Player.route) {
                 VideoPlayerScreen(
-                    channel = currentPlayingChannel,
-                    hardwareAcceleration = viewModel.settingsManager.isHardwareAccelerationEnabled.value,
-                    onBackClick = { navController.popBackStack() },
-                    onNextChannel = { viewModel.nextChannel() },
-                    onPrevChannel = { viewModel.prevChannel() }
+                    viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() }
                 )
             }
         }

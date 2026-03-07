@@ -1,10 +1,13 @@
 package com.example.minimaltv.ui.playlist
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -13,24 +16,39 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.minimaltv.R
 import com.example.minimaltv.data.model.Playlist
+import com.example.minimaltv.data.model.Channel
+import com.example.minimaltv.ui.TvViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistScreen(
-    playlists: List<Playlist>,
+    viewModel: TvViewModel,
     onAddClick: () -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
+    onChannelClick: (Channel) -> Unit,
     onDeletePlaylist: (Playlist) -> Unit,
     onRefreshPlaylist: (Playlist) -> Unit,
     onRenamePlaylist: (Playlist, String) -> Unit,
     onRefreshAll: () -> Unit
 ) {
+    val playlists by viewModel.playlists.collectAsState()
+    val recentChannels by viewModel.recentChannels.collectAsState()
+    val context = LocalContext.current
+    
     var showTopMenu by remember { mutableStateOf(false) }
     var playlistToRename by remember { mutableStateOf<Playlist?>(null) }
     var newName by remember { mutableStateOf("") }
@@ -62,7 +80,24 @@ fun PlaylistScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.Bold) },
+                title = { 
+                    // 텍스트 제거하고 로고만 표시
+                    val logoResId = remember(context) {
+                        val id = context.resources.getIdentifier("ic_app_logo", "drawable", context.packageName)
+                        if (id != 0) id else android.R.drawable.ic_menu_gallery
+                    }
+                    Surface(
+                        modifier = Modifier.size(36.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Image(
+                            painter = painterResource(id = logoResId),
+                            contentDescription = stringResource(R.string.app_name),
+                            modifier = Modifier.padding(6.dp)
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = onAddClick) {
                         Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_playlist))
@@ -83,50 +118,102 @@ fun PlaylistScreen(
             )
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = stringResource(R.string.playlist_saved_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(
-                    text = stringResource(R.string.playlist_items_count, playlists.size), 
-                    style = MaterialTheme.typography.bodyMedium, 
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
-
-            if (playlists.isEmpty()) {
-                Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.playlist_empty), color = MaterialTheme.colorScheme.outline)
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(playlists) { playlist ->
-                        PlaylistCard(
-                            playlist = playlist,
-                            onClick = { onPlaylistClick(playlist) },
-                            onDelete = { onDeletePlaylist(playlist) },
-                            onRefresh = { onRefreshPlaylist(playlist) },
-                            onRename = { 
-                                newName = playlist.name
-                                playlistToRename = playlist 
-                            }
+            // 최근 시청한 채널 섹션 (다국어 리소스 적용)
+            if (recentChannels.isNotEmpty()) {
+                item {
+                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                        Text(
+                            text = stringResource(R.string.recent_channels_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 12.dp)
                         )
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(end = 16.dp)
+                        ) {
+                            items(recentChannels) { channel ->
+                                RecentChannelItem(channel = channel, onClick = { onChannelClick(channel) })
+                            }
+                        }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+
+            // 플레이리스트 섹션 헤더
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = stringResource(R.string.playlist_saved_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = stringResource(R.string.playlist_items_count, playlists.size), 
+                        style = MaterialTheme.typography.bodySmall, 
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
+
+            if (playlists.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.playlist_empty), color = MaterialTheme.colorScheme.outline)
+                    }
+                }
+            } else {
+                items(playlists) { playlist ->
+                    PlaylistCard(
+                        playlist = playlist,
+                        onClick = { onPlaylistClick(playlist) },
+                        onDelete = { onDeletePlaylist(playlist) },
+                        onRefresh = { onRefreshPlaylist(playlist) },
+                        onRename = { 
+                            newName = playlist.name
+                            playlistToRename = playlist 
+                        }
+                    )
+                }
+            }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
+    }
+}
+
+@Composable
+fun RecentChannelItem(channel: Channel, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .width(80.dp)
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AsyncImage(
+            model = channel.thumbnail,
+            contentDescription = channel.name,
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentScale = ContentScale.Fit,
+            error = painterResource(id = android.R.drawable.ic_menu_gallery)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = channel.name,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

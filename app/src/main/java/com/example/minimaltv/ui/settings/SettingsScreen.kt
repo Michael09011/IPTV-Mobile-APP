@@ -1,5 +1,7 @@
 package com.example.minimaltv.ui.settings
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,6 +28,7 @@ import com.example.minimaltv.ui.TvViewModel
 @Composable
 fun SettingsScreen(viewModel: TvViewModel) {
     val settingsManager = viewModel.settingsManager
+    val context = LocalContext.current
     var showEpgDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
@@ -197,8 +201,12 @@ fun SettingsScreen(viewModel: TvViewModel) {
 
                 SettingsSectionHeader(stringResource(R.string.settings_info))
                 ListItem(
+                    modifier = Modifier.clickable {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Michael09011/IPTV-Mobile-APP/releases"))
+                        context.startActivity(intent)
+                    },
                     headlineContent = { Text(stringResource(R.string.settings_version)) },
-                    supportingContent = { Text(stringResource(R.string.settings_latest_version) + " (v1.0.0)") },
+                    supportingContent = { Text(stringResource(R.string.settings_latest_version) + " (v1.0.1)") },
                     leadingContent = {
                         Surface(
                             color = MaterialTheme.colorScheme.surfaceVariant,
@@ -214,6 +222,17 @@ fun SettingsScreen(viewModel: TvViewModel) {
                         Surface(color = Color(0xFF4CAF50), shape = androidx.compose.foundation.shape.CircleShape) {
                             Text(text = "Latest", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), color = Color.White, style = MaterialTheme.typography.labelSmall)
                         }
+                    }
+                )
+                
+                // 릴리즈 사이트 직접 연결 버튼 추가
+                SettingsNavigationItem(
+                    title = stringResource(R.string.settings_release_site),
+                    description = "GitHub Releases",
+                    icon = Icons.Default.OpenInNew,
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Michael09011/IPTV-Mobile-APP/releases"))
+                        context.startActivity(intent)
                     }
                 )
 

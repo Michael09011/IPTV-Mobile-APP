@@ -84,8 +84,7 @@ public final class PlaylistDao_Impl implements PlaylistDao {
   }
 
   @Override
-  public Object insertPlaylist(final Playlist playlist,
-      final Continuation<? super Unit> $completion) {
+  public Object insertPlaylist(final Playlist playlist, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -99,11 +98,11 @@ public final class PlaylistDao_Impl implements PlaylistDao {
           __db.endTransaction();
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override
-  public Object deletePlaylistById(final String id, final Continuation<? super Unit> $completion) {
+  public Object deletePlaylistById(final String id, final Continuation<? super Unit> arg1) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -128,7 +127,7 @@ public final class PlaylistDao_Impl implements PlaylistDao {
           __preparedStmtOfDeletePlaylistById.release(_stmt);
         }
       }
-    }, $completion);
+    }, arg1);
   }
 
   @Override

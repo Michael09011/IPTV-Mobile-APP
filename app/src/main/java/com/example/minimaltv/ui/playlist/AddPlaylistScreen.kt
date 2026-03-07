@@ -9,15 +9,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.minimaltv.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +27,7 @@ fun AddPlaylistScreen(
     onAddUrl: (String, String) -> Unit,
     onAddLocalFile: (String, Uri) -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(1) } // 0: Local, 1: URL
+    var selectedTab by remember { mutableIntStateOf(1) } // 0: Local, 1: URL
     var playlistName by remember { mutableStateOf("") }
     var playlistUrl by remember { mutableStateOf("") }
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
@@ -56,10 +57,10 @@ fun AddPlaylistScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onClose) {
-                    Icon(Icons.Default.Close, contentDescription = "닫기")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                 }
                 Text(
-                    text = "플레이리스트 추가",
+                    text = stringResource(R.string.add_playlist_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -68,24 +69,28 @@ fun AddPlaylistScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("플레이리스트 이름 (선택사항)", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.playlist_name_optional), style = MaterialTheme.typography.titleSmall)
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = playlistName,
                 onValueChange = { playlistName = it },
-                placeholder = { Text("이름을 입력하세요 (예: 한국 채널)") },
+                placeholder = { Text(stringResource(R.string.playlist_name_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("추가 방식 선택", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.add_method_title), style = MaterialTheme.typography.titleSmall)
             Spacer(modifier = Modifier.height(16.dp))
 
             AddOptionCard(
-                title = "로컬 파일 추가",
-                description = selectedFileUri?.let { "선택됨: ${it.path?.split("/")?.last()}" } ?: "M3U 또는 M3U8 파일을 선택하세요.",
+                title = stringResource(R.string.add_local_file),
+                description = if (selectedFileUri != null) {
+                    stringResource(R.string.file_selected, selectedFileUri?.path?.split("/")?.last() ?: "")
+                } else {
+                    stringResource(R.string.select_m3u_file)
+                },
                 iconRes = android.R.drawable.ic_menu_save,
                 isSelected = selectedTab == 0,
                 onClick = { 
@@ -97,8 +102,8 @@ fun AddPlaylistScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             AddOptionCard(
-                title = "URL로 추가",
-                description = "M3U URL 주소를 직접 입력합니다.",
+                title = stringResource(R.string.add_url),
+                description = stringResource(R.string.add_url_desc),
                 iconRes = android.R.drawable.ic_menu_send,
                 isSelected = selectedTab == 1,
                 onClick = { selectedTab = 1 }
@@ -106,7 +111,7 @@ fun AddPlaylistScreen(
 
             if (selectedTab == 1) {
                 Spacer(modifier = Modifier.height(24.dp))
-                Text("M3U URL 주소", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.playlist_url), style = MaterialTheme.typography.titleSmall)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = playlistUrl,
@@ -126,11 +131,13 @@ fun AddPlaylistScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("취소", color = MaterialTheme.colorScheme.onSurface)
+                    Text(stringResource(R.string.cancel), color = MaterialTheme.colorScheme.onSurface)
                 }
                 Button(
                     onClick = { 
-                        val finalName = playlistName.ifEmpty { if (selectedTab == 1) "새 URL 목록" else "새 로컬 목록" }
+                        val finalName = playlistName.ifEmpty { 
+                            if (selectedTab == 1) "URL Playlist" else "Local Playlist" 
+                        }
                         if (selectedTab == 1) {
                             onAddUrl(finalName, playlistUrl)
                         } else {
@@ -141,7 +148,7 @@ fun AddPlaylistScreen(
                     shape = RoundedCornerShape(12.dp),
                     enabled = (selectedTab == 1 && playlistUrl.isNotEmpty()) || (selectedTab == 0 && selectedFileUri != null)
                 ) {
-                    Text("추가하기")
+                    Text(stringResource(R.string.add_playlist_confirm))
                 }
             }
         }

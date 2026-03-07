@@ -6,15 +6,18 @@ import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.view.WindowManager
 import androidx.annotation.OptIn
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,9 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -35,36 +41,47 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import coil.compose.AsyncImage
 import com.example.minimaltv.R
 import com.example.minimaltv.data.model.Channel
 import com.example.minimaltv.player.ExoPlayerManager
+import com.example.minimaltv.ui.TvViewModel
 
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoPlayerScreen(
-    channel: Channel?,
-    hardwareAcceleration: Boolean,
-    onBackClick: () -> Unit,
-    onNextChannel: () -> Unit = {},
-    onPrevChannel: () -> Unit = {}
+    viewModel: TvViewModel,
+    onBackClick: () -> Unit
 ) {
+    val channel by viewModel.currentPlayingChannel.collectAsState()
+    val channels by viewModel.selectedChannels.collectAsState()
+    val hardwareAcceleration = viewModel.settingsManager.isHardwareAccelerationEnabled.value
+    
     val context = LocalContext.current
     val exoPlayerManager = remember { ExoPlayerManager(context) }
     val player = remember { exoPlayerManager.initializePlayer(hardwareAcceleration) }
     var isPlaying by remember { mutableStateOf(false) }
     var showControls by remember { mutableStateOf(true) }
     var isLandscape by remember { mutableStateOf(false) }
+    var showSidebar by remember { mutableStateOf(false) }
+    var volume by remember { mutableStateOf(player.volume) }
+    var showVolumeBar by remember { mutableStateOf(false) }
     
-    // 화면 비율 상태 (0: FIT, 3: FILL, 4: ZOOM)
     var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
-
-    val activity = remember(context) { context.findActivity() }
+    
+    // findActivity를 확장 함수 대신 직접 안전하게 정의
+    val activity = remember(context) {
+        var c = context
+        while (c is ContextWrapper) {
+            if (c is Activity) break
+            c = c.baseContext
+        }
+        c as? Activity
+    }
 
     DisposableEffect(player) {
         val listener = object : androidx.media3.common.Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
-            }
+            override fun onIsPlayingChanged(playing: Boolean) { isPlaying = playing }
         }
         player.addListener(listener)
         onDispose { player.removeListener(listener) }
@@ -99,9 +116,7 @@ fun VideoPlayerScreen(
     }
 
     LaunchedEffect(channel?.streamUrl) {
-        channel?.streamUrl?.let { url ->
-            exoPlayerManager.play(url)
-        }
+        channel?.streamUrl?.let { url -> exoPlayerManager.play(url) }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
@@ -113,11 +128,55 @@ fun VideoPlayerScreen(
                     this.resizeMode = resizeMode
                 }
             },
-            update = { view ->
-                view.resizeMode = resizeMode
-            },
-            modifier = Modifier.fillMaxSize().clickable { showControls = !showControls }
+            update = { view -> view.resizeMode = resizeMode },
+            modifier = Modifier.fillMaxSize().clickable { 
+                showControls = !showControls
+                if (!showControls) {
+                    showSidebar = false
+                    showVolumeBar = false
+                }
+            }
         )
+
+        // 사이드바 채널 목록 (겹침 방지 여백 추가 및 다국어 지원)
+        AnimatedVisibility(
+            visible = showSidebar,
+            enter = slideInHorizontally(),
+            exit = slideOutHorizontally()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(if (isLandscape) 300.dp else 260.dp)
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+            ) {
+                Column {
+                    // 상단 버튼들과 겹치지 않도록 충분한 상단 여백 추가
+                    Spacer(modifier = Modifier.height(72.dp))
+                    
+                    Text(
+                        text = stringResource(R.string.player_channel_list),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    LazyColumn(
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        items(channels) { item ->
+                            SidebarChannelItem(
+                                channel = item,
+                                isSelected = item.id == channel?.id,
+                                onClick = { viewModel.selectChannel(item) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         if (showControls) {
             PlayerControlsOverlay(
@@ -125,18 +184,28 @@ fun VideoPlayerScreen(
                 isPlaying = isPlaying,
                 isLandscape = isLandscape,
                 resizeMode = resizeMode,
-                onPlayPauseToggle = {
-                    if (player.isPlaying) player.pause() else player.play()
-                },
+                volume = volume,
+                showVolumeBar = showVolumeBar,
+                showSidebar = showSidebar,
+                onPlayPauseToggle = { if (player.isPlaying) player.pause() else player.play() },
                 onBackClick = onBackClick,
-                onNextChannel = onNextChannel,
-                onPrevChannel = onPrevChannel,
+                onNextChannel = { viewModel.nextChannel() },
+                onPrevChannel = { viewModel.prevChannel() },
+                onFavoriteToggle = { channel?.let { viewModel.toggleFavorite(it) } },
+                onToggleSidebar = { showSidebar = !showSidebar },
+                onToggleVolume = { showVolumeBar = !showVolumeBar },
+                onVolumeChange = { 
+                    volume = it
+                    player.volume = it
+                },
                 onToggleOrientation = {
                     isLandscape = !isLandscape
-                    activity?.requestedOrientation = if (isLandscape) {
-                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                    } else {
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    activity?.let { act ->
+                        act.requestedOrientation = if (isLandscape) {
+                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        } else {
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        }
                     }
                 },
                 onToggleResizeMode = {
@@ -151,6 +220,35 @@ fun VideoPlayerScreen(
     }
 }
 
+@Composable
+fun SidebarChannelItem(channel: Channel, isSelected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = channel.thumbnail,
+            contentDescription = null,
+            modifier = Modifier.size(44.dp).clip(RoundedCornerShape(8.dp)).background(Color.Gray.copy(alpha = 0.3f)),
+            contentScale = ContentScale.Fit,
+            error = painterResource(id = android.R.drawable.ic_menu_gallery)
+        )
+        Spacer(modifier = Modifier.width(14.dp))
+        Text(
+            text = channel.name,
+            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
+            fontSize = 15.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerControlsOverlay(
@@ -158,10 +256,17 @@ fun PlayerControlsOverlay(
     isPlaying: Boolean,
     isLandscape: Boolean,
     resizeMode: Int,
+    volume: Float,
+    showVolumeBar: Boolean,
+    showSidebar: Boolean,
     onPlayPauseToggle: () -> Unit,
     onBackClick: () -> Unit,
     onNextChannel: () -> Unit,
     onPrevChannel: () -> Unit,
+    onFavoriteToggle: () -> Unit,
+    onToggleSidebar: () -> Unit,
+    onToggleVolume: () -> Unit,
+    onVolumeChange: (Float) -> Unit,
     onToggleOrientation: () -> Unit,
     onToggleResizeMode: () -> Unit
 ) {
@@ -171,43 +276,72 @@ fun PlayerControlsOverlay(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color.Black.copy(alpha = 0.6f),
+                        Color.Black.copy(alpha = 0.7f),
                         Color.Transparent,
                         Color.Transparent,
-                        Color.Black.copy(alpha = 0.6f)
+                        Color.Black.copy(alpha = 0.7f)
                     )
                 )
             )
     ) {
-        // 상단 바 (상태바 영역 패딩 적용)
+        // 상단 바
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
                 .align(Alignment.TopCenter), 
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.player_back), tint = Color.White)
             }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = channel?.name ?: stringResource(R.string.player_no_info), 
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+            
+            IconButton(onClick = onToggleSidebar) {
+                Icon(
+                    imageVector = if (showSidebar) Icons.AutoMirrored.Filled.MenuOpen else Icons.Default.Menu,
+                    contentDescription = stringResource(R.string.player_sidebar),
+                    tint = if (showSidebar) MaterialTheme.colorScheme.primary else Color.White
                 )
-                if (channel?.currentProgram != null) {
-                    Text(
-                        text = stringResource(R.string.player_now_playing, channel.currentProgram),
-                        color = Color.White.copy(alpha = 0.8f),
-                        fontSize = 12.sp
+            }
+
+            IconButton(onClick = onFavoriteToggle) {
+                Icon(
+                    imageVector = if (channel?.isFavorite == true) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = stringResource(R.string.player_favorites),
+                    tint = if (channel?.isFavorite == true) Color.Red else Color.White
+                )
+            }
+
+            Box(contentAlignment = Alignment.CenterStart) {
+                IconButton(onClick = onToggleVolume) {
+                    Icon(
+                        imageVector = when {
+                            volume == 0f -> Icons.AutoMirrored.Filled.VolumeOff
+                            volume < 0.5f -> Icons.AutoMirrored.Filled.VolumeDown
+                            else -> Icons.AutoMirrored.Filled.VolumeUp
+                        },
+                        contentDescription = stringResource(R.string.player_volume),
+                        tint = Color.White
                     )
                 }
+                if (showVolumeBar) {
+                    Card(
+                        modifier = Modifier.padding(start = 48.dp).width(160.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.8f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Slider(
+                            value = volume,
+                            onValueChange = onVolumeChange,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                        )
+                    }
+                }
             }
+
+            Spacer(modifier = Modifier.weight(1f))
             
-            // 화면 비율 변경 버튼
             IconButton(onClick = onToggleResizeMode) {
                 Icon(
                     imageVector = when (resizeMode) {
@@ -215,7 +349,7 @@ fun PlayerControlsOverlay(
                         AspectRatioFrameLayout.RESIZE_MODE_FILL -> Icons.Default.AspectRatio
                         else -> Icons.Default.FitScreen
                     },
-                    contentDescription = "화면 비율",
+                    contentDescription = stringResource(R.string.player_aspect_ratio),
                     tint = Color.White
                 )
             }
@@ -229,16 +363,16 @@ fun PlayerControlsOverlay(
             }
         }
 
-        // 하단 컨트롤 바 (네비게이션 바 영역 패딩 적용)
+        // 하단 컨트롤 바
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
                 .padding(16.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.Black.copy(alpha = 0.4f))
-                .padding(16.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.Black.copy(alpha = 0.5f))
+                .padding(20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -246,40 +380,45 @@ fun PlayerControlsOverlay(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = channel?.name ?: stringResource(R.string.player_no_info), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(text = channel?.category ?: "", color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
+                    Text(
+                        text = channel?.name ?: stringResource(R.string.player_no_info), 
+                        color = Color.White, 
+                        fontWeight = FontWeight.Bold, 
+                        fontSize = 18.sp, 
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = channel?.category ?: "", 
+                        color = Color.White.copy(alpha = 0.7f), 
+                        fontSize = 13.sp
+                    )
                 }
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onPrevChannel) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.player_prev), tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.player_prev), tint = Color.White, modifier = Modifier.size(28.dp))
                     }
                     IconButton(onClick = onPlayPauseToggle) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = stringResource(R.string.player_play_pause),
                             tint = Color.White,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(40.dp)
                         )
                     }
                     IconButton(onClick = onNextChannel) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.player_next), tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.player_next), tint = Color.White, modifier = Modifier.size(28.dp))
                     }
                 }
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth().height(4.dp).clip(CircleShape),
                 color = MaterialTheme.colorScheme.primary,
-                trackColor = Color.White.copy(alpha = 0.3f)
+                trackColor = Color.White.copy(alpha = 0.2f)
             )
         }
     }
-}
-
-fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
 }

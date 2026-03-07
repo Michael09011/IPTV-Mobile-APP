@@ -26,8 +26,8 @@ interface ChannelDao {
     @Query("SELECT * FROM channels WHERE isFavorite = 1")
     fun getFavoriteChannels(): Flow<List<Channel>>
 
-    @Query("SELECT * FROM channels WHERE playlistId = :playlistId AND isFavorite = 1")
-    suspend fun getFavoriteChannelsByPlaylistSync(playlistId: String): List<Channel>
+    @Query("SELECT * FROM channels WHERE lastWatched > 0 ORDER BY lastWatched DESC LIMIT 5")
+    fun getRecentChannels(): Flow<List<Channel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChannels(channels: List<Channel>)
@@ -39,7 +39,7 @@ interface ChannelDao {
     suspend fun deleteChannelsByPlaylist(playlistId: String)
 }
 
-@Database(entities = [Playlist::class, Channel::class], version = 2, exportSchema = false)
+@Database(entities = [Playlist::class, Channel::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
     abstract fun channelDao(): ChannelDao

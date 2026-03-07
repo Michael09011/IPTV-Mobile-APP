@@ -28,21 +28,24 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.minimaltv.R
 import com.example.minimaltv.data.model.Channel
+import com.example.minimaltv.ui.TvViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChannelListScreen(
+    viewModel: TvViewModel,
     categoryName: String,
-    channels: List<Channel>,
     onBackClick: () -> Unit,
     onChannelClick: (Channel) -> Unit,
     onFavoriteToggle: (Channel) -> Unit
 ) {
+    val channels by viewModel.selectedChannels.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    
     var showMenu by remember { mutableStateOf(false) }
     val allCategoryLabel = stringResource(R.string.channel_category_all)
     var selectedCategory by remember { mutableStateOf(allCategoryLabel) }
-    var isSearchMode by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    var isSearchMode by remember { mutableStateOf(searchQuery.isNotEmpty()) }
     val focusManager = LocalFocusManager.current
     
     val categories = remember(channels, allCategoryLabel) {
@@ -66,7 +69,7 @@ fun ChannelListScreen(
                     if (isSearchMode) {
                         TextField(
                             value = searchQuery,
-                            onValueChange = { searchQuery = it },
+                            onValueChange = { viewModel.setSearchQuery(it) },
                             placeholder = { Text(stringResource(R.string.channel_search_placeholder)) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.colors(
@@ -91,9 +94,10 @@ fun ChannelListScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        if (isSearchMode) {
+                        if (isSearchMode && searchQuery.isEmpty()) {
                             isSearchMode = false
-                            searchQuery = ""
+                        } else if (isSearchMode) {
+                            viewModel.setSearchQuery("")
                         } else {
                             onBackClick()
                         }
@@ -127,8 +131,10 @@ fun ChannelListScreen(
                             }
                         }
                     } else {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.channel_clear_search))
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.setSearchQuery("") }) {
+                                Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.channel_clear_search))
+                            }
                         }
                     }
                 }
