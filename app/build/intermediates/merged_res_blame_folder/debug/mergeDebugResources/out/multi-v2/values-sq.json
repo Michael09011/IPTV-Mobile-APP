@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.minimaltv.app-mergeDebugResources-70:/values-sq/values-sq.xml",
+            "outputFile": "com.example.minimaltv.app-mergeDebugResources-73:/values-sq/values-sq.xml",
             "map": [
                 {
                     "source": "/Users/michael/.gradle/caches/9.0.0/transforms/674e46158426c2d5dc1dba57d64ff845/transformed/appcompat-1.7.0/res/values-sq/values-sq.xml",

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.minimaltv.app-mergeDebugResources-70:/values-zh-rHK/values-zh-rHK.xml",
+            "outputFile": "com.example.minimaltv.app-mergeDebugResources-73:/values-zh-rHK/values-zh-rHK.xml",
             "map": [
                 {
                     "source": "/Users/michael/.gradle/caches/9.0.0/transforms/d2507ea620fd4cc3501dfeac3b098cb0/transformed/media3-exoplayer-1.4.1/res/values-zh-rHK/values-zh-rHK.xml",

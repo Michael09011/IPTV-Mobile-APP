@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.minimaltv.app-mergeDebugResources-70:/values-si/values-si.xml",
+            "outputFile": "com.example.minimaltv.app-mergeDebugResources-73:/values-si/values-si.xml",
             "map": [
                 {
                     "source": "/Users/michael/.gradle/caches/9.0.0/transforms/d2507ea620fd4cc3501dfeac3b098cb0/transformed/media3-exoplayer-1.4.1/res/values-si/values-si.xml",

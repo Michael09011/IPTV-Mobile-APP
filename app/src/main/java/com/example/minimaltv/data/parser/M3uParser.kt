@@ -20,14 +20,18 @@ object M3uParser {
                 }
                 line.startsWith("http") -> {
                     if (currentName.isNotEmpty()) {
+                        val streamUrl = line.trim()
+                        // streamUrl과 playlistId를 조합하여 고유한 ID 생성 (즐겨찾기 유지용)
+                        val uniqueId = UUID.nameUUIDFromBytes("${playlistId}_$streamUrl".toByteArray()).toString()
+                        
                         channels.add(
                             Channel(
-                                id = UUID.randomUUID().toString(),
+                                id = uniqueId,
                                 playlistId = playlistId,
                                 name = currentName,
                                 thumbnail = currentLogo,
                                 category = currentCategory,
-                                streamUrl = line.trim()
+                                streamUrl = streamUrl
                             )
                         )
                     }

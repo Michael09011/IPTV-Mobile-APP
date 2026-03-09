@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.minimaltv.app-mergeDebugResources-70:/values-ka/values-ka.xml",
+            "outputFile": "com.example.minimaltv.app-mergeDebugResources-73:/values-ka/values-ka.xml",
             "map": [
                 {
                     "source": "/Users/michael/.gradle/caches/9.0.0/transforms/fd766a0c579e4196c6a12cb568b6f893/transformed/material-1.12.0/res/values-ka/values-ka.xml",

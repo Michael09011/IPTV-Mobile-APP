@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.minimaltv.app-mergeDebugResources-70:/values-bn/values-bn.xml",
+            "outputFile": "com.example.minimaltv.app-mergeDebugResources-73:/values-bn/values-bn.xml",
             "map": [
                 {
                     "source": "/Users/michael/.gradle/caches/9.0.0/transforms/df364bc475456923112a0e32ed5b8dc3/transformed/core-1.15.0/res/values-bn/values-bn.xml",

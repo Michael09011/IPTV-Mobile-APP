@@ -24,12 +24,13 @@ import com.example.minimaltv.R
 @Composable
 fun AddPlaylistScreen(
     onClose: () -> Unit, 
-    onAddUrl: (String, String) -> Unit,
+    onAddUrl: (String, String, String) -> Unit, // epgUrl 추가 (String 3개)
     onAddLocalFile: (String, Uri) -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(1) } // 0: Local, 1: URL
     var playlistName by remember { mutableStateOf("") }
     var playlistUrl by remember { mutableStateOf("") }
+    var epgUrl by remember { mutableStateOf("") } // EPG 입력 필드용 상태 추가
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -120,6 +121,18 @@ fun AddPlaylistScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
+                
+                // EPG URL 입력 필드 추가
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("EPG URL (선택사항)", style = MaterialTheme.typography.titleSmall)
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = epgUrl,
+                    onValueChange = { epgUrl = it },
+                    placeholder = { Text("http://example.com/epg.xml") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -139,7 +152,7 @@ fun AddPlaylistScreen(
                             if (selectedTab == 1) "URL Playlist" else "Local Playlist" 
                         }
                         if (selectedTab == 1) {
-                            onAddUrl(finalName, playlistUrl)
+                            onAddUrl(finalName, playlistUrl, epgUrl) // 3개 값 전달
                         } else {
                             selectedFileUri?.let { onAddLocalFile(finalName, it) }
                         }

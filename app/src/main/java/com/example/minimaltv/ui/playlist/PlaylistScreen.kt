@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,10 +40,11 @@ fun PlaylistScreen(
     viewModel: TvViewModel,
     onAddClick: () -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
-    onChannelClick: (Channel) -> Unit,
+    onChannelClick: (Channel, Boolean) -> Unit,
     onDeletePlaylist: (Playlist) -> Unit,
     onRefreshPlaylist: (Playlist) -> Unit,
-    onRenamePlaylist: (Playlist, String) -> Unit,
+    onEditPlaylist: (Playlist, String, String) -> Unit, // 파라미터 확장
+    onMovePlaylist: (Playlist, Boolean) -> Unit,
     onRefreshAll: () -> Unit
 ) {
     val playlists by viewModel.playlists.collectAsState()
@@ -50,29 +52,41 @@ fun PlaylistScreen(
     val context = LocalContext.current
     
     var showTopMenu by remember { mutableStateOf(false) }
-    var playlistToRename by remember { mutableStateOf<Playlist?>(null) }
-    var newName by remember { mutableStateOf("") }
+    var playlistToEdit by remember { mutableStateOf<Playlist?>(null) }
+    var editName by remember { mutableStateOf("") }
+    var editEpgUrl by remember { mutableStateOf("") }
 
-    if (playlistToRename != null) {
+    if (playlistToEdit != null) {
         AlertDialog(
-            onDismissRequest = { playlistToRename = null },
-            title = { Text(stringResource(R.string.rename_playlist)) },
+            onDismissRequest = { playlistToEdit = null },
+            title = { Text("플레이리스트 편집") },
             text = {
-                OutlinedTextField(
-                    value = newName,
-                    onValueChange = { newName = it },
-                    label = { Text(stringResource(R.string.playlist_name)) },
-                    singleLine = true
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedTextField(
+                        value = editName,
+                        onValueChange = { editName = it },
+                        label = { Text(stringResource(R.string.playlist_name)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = editEpgUrl,
+                        onValueChange = { editEpgUrl = it },
+                        label = { Text("EPG URL") },
+                        placeholder = { Text("http://example.com/epg.xml") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             },
             confirmButton = {
                 Button(onClick = {
-                    onRenamePlaylist(playlistToRename!!, newName)
-                    playlistToRename = null
+                    onEditPlaylist(playlistToEdit!!, editName, editEpgUrl)
+                    playlistToEdit = null
                 }) { Text(stringResource(R.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { playlistToRename = null }) { Text(stringResource(R.string.cancel)) }
+                TextButton(onClick = { playlistToEdit = null }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -81,7 +95,6 @@ fun PlaylistScreen(
         topBar = {
             TopAppBar(
                 title = { 
-                    // 텍스트 제거하고 로고만 표시
                     val logoResId = remember(context) {
                         val id = context.resources.getIdentifier("ic_app_logo", "drawable", context.packageName)
                         if (id != 0) id else android.R.drawable.ic_menu_gallery
@@ -125,7 +138,6 @@ fun PlaylistScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 최근 시청한 채널 섹션 (다국어 리소스 적용)
             if (recentChannels.isNotEmpty()) {
                 item {
                     Column(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -140,14 +152,13 @@ fun PlaylistScreen(
                             contentPadding = PaddingValues(end = 16.dp)
                         ) {
                             items(recentChannels) { channel ->
-                                RecentChannelItem(channel = channel, onClick = { onChannelClick(channel) })
+                                RecentChannelItem(channel = channel, onClick = { onChannelClick(channel, false) })
                             }
                         }
                     }
                 }
             }
 
-            // 플레이리스트 섹션 헤더
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
@@ -170,20 +181,103 @@ fun PlaylistScreen(
                     }
                 }
             } else {
-                items(playlists) { playlist ->
+                itemsIndexed(playlists) { index, playlist ->
                     PlaylistCard(
                         playlist = playlist,
+                        isFirst = index == 0,
+                        isLast = index == playlists.size - 1,
                         onClick = { onPlaylistClick(playlist) },
                         onDelete = { onDeletePlaylist(playlist) },
                         onRefresh = { onRefreshPlaylist(playlist) },
-                        onRename = { 
-                            newName = playlist.name
-                            playlistToRename = playlist 
-                        }
+                        onEdit = { 
+                            editName = playlist.name
+                            editEpgUrl = playlist.epgUrl
+                            playlistToEdit = playlist 
+                        },
+                        onMoveUp = { onMovePlaylist(playlist, true) },
+                        onMoveDown = { onMovePlaylist(playlist, false) }
                     )
                 }
             }
             item { Spacer(modifier = Modifier.height(16.dp)) }
+        }
+    }
+}
+
+@Composable
+fun PlaylistCard(
+    playlist: Playlist, 
+    isFirst: Boolean,
+    isLast: Boolean,
+    onClick: () -> Unit, 
+    onDelete: () -> Unit, 
+    onRefresh: () -> Unit, 
+    onEdit: () -> Unit,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit
+) {
+    var showItemMenu by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                IconButton(onClick = onMoveUp, enabled = !isFirst, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = null, tint = if(isFirst) Color.Gray else MaterialTheme.colorScheme.primary)
+                }
+                IconButton(onClick = onMoveDown, enabled = !isLast, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = if(isLast) Color.Gray else MaterialTheme.colorScheme.primary)
+                }
+            }
+            
+            Spacer(modifier = Modifier.width(8.dp))
+            
+            Box(
+                modifier = Modifier.size(48.dp).background(Color.White, RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = playlist.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = stringResource(R.string.playlist_channels_count, playlist.channelCount), 
+                    style = MaterialTheme.typography.bodySmall, 
+                    color = MaterialTheme.colorScheme.outline
+                )
+                if (playlist.epgUrl.isNotEmpty()) {
+                    Text(text = "EPG: ${playlist.epgUrl}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+            Box {
+                IconButton(onClick = { showItemMenu = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.common_options), tint = MaterialTheme.colorScheme.outline)
+                }
+                DropdownMenu(expanded = showItemMenu, onDismissRequest = { showItemMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text("편집") },
+                        onClick = { onEdit(); showItemMenu = false },
+                        leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.refresh_playlist)) },
+                        onClick = { onRefresh(); showItemMenu = false },
+                        leadingIcon = { Icon(Icons.Default.Refresh, contentDescription = null) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.delete_playlist), color = Color.Red) },
+                        onClick = { onDelete(); showItemMenu = false },
+                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) }
+                    )
+                }
+            }
         }
     }
 }
@@ -214,60 +308,5 @@ fun RecentChannelItem(channel: Channel, onClick: () -> Unit) {
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
-    }
-}
-
-@Composable
-fun PlaylistCard(playlist: Playlist, onClick: () -> Unit, onDelete: () -> Unit, onRefresh: () -> Unit, onRename: () -> Unit) {
-    var showItemMenu by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier.size(48.dp).background(Color.White, RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.AutoMirrored.Filled.List, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = playlist.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    text = stringResource(R.string.playlist_channels_count, playlist.channelCount), 
-                    style = MaterialTheme.typography.bodySmall, 
-                    color = MaterialTheme.colorScheme.outline
-                )
-                Text(text = playlist.url, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline, maxLines = 1)
-            }
-            Box {
-                IconButton(onClick = { showItemMenu = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.common_options), tint = MaterialTheme.colorScheme.outline)
-                }
-                DropdownMenu(expanded = showItemMenu, onDismissRequest = { showItemMenu = false }) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.rename_playlist)) },
-                        onClick = { onRename(); showItemMenu = false },
-                        leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.refresh_playlist)) },
-                        onClick = { onRefresh(); showItemMenu = false },
-                        leadingIcon = { Icon(Icons.Default.Refresh, contentDescription = null) }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.delete_playlist), color = Color.Red) },
-                        onClick = { onDelete(); showItemMenu = false },
-                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) }
-                    )
-                }
-            }
-        }
     }
 }

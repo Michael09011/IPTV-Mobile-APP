@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -63,12 +63,12 @@ class MainActivity : AppCompatActivity() {
 }
 
 sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVector) {
-    object Playlist : Screen("playlist", R.string.nav_playlist, Icons.Default.List)
+    object Playlist : Screen("playlist", R.string.nav_playlist, Icons.AutoMirrored.Filled.List)
     object Favorites : Screen("favorites", R.string.nav_favorites, Icons.Default.Favorite)
     object Settings : Screen("settings", R.string.nav_settings, Icons.Default.Settings)
-    object AddPlaylist : Screen("add_playlist", R.string.add_playlist, Icons.Default.List)
-    object ChannelList : Screen("channel_list/{playlistId}/{playlistName}", R.string.app_name, Icons.Default.List)
-    object Player : Screen("player", R.string.app_name, Icons.Default.List)
+    object AddPlaylist : Screen("add_playlist", R.string.add_playlist, Icons.AutoMirrored.Filled.List)
+    object ChannelList : Screen("channel_list/{playlistId}/{playlistName}", R.string.app_name, Icons.AutoMirrored.Filled.List)
+    object Player : Screen("player", R.string.app_name, Icons.AutoMirrored.Filled.List)
 }
 
 @Composable
@@ -117,7 +117,6 @@ fun MainScreen(viewModel: TvViewModel) {
                 .padding(if (currentRoute == Screen.Player.route) PaddingValues(0.dp) else innerPadding)
         ) {
             composable(Screen.Playlist.route) {
-                // 메인으로 돌아오면 검색 초기화
                 LaunchedEffect(Unit) {
                     viewModel.clearSearchQuery()
                 }
@@ -127,21 +126,25 @@ fun MainScreen(viewModel: TvViewModel) {
                     onPlaylistClick = { playlist ->
                         navController.navigate("channel_list/${playlist.id}/${playlist.name}")
                     },
-                    onChannelClick = { channel ->
-                        viewModel.selectChannel(channel)
+                    // 최근 시청 채널 등에서 직접 재생 시 (사이드바 비활성화 옵션 포함)
+                    onChannelClick = { channel, enableSidebar ->
+                        viewModel.selectChannel(channel, enableSidebar)
                         navController.navigate(Screen.Player.route)
                     },
                     onDeletePlaylist = { viewModel.deletePlaylist(it) },
                     onRefreshPlaylist = { viewModel.refreshPlaylist(it) },
-                    onRenamePlaylist = { playlist, newName -> viewModel.renamePlaylist(playlist, newName) },
+                    onEditPlaylist = { playlist, name, epgUrl -> 
+                        viewModel.editPlaylist(playlist, name, epgUrl) 
+                    },
+                    onMovePlaylist = { playlist, up -> viewModel.movePlaylist(playlist, up) },
                     onRefreshAll = { viewModel.refreshAllPlaylists() }
                 )
             }
             composable(Screen.AddPlaylist.route) {
                 AddPlaylistScreen(
                     onClose = { navController.popBackStack() },
-                    onAddUrl = { name, url -> 
-                        viewModel.addPlaylistFromUrl(name, url)
+                    onAddUrl = { name, url, epgUrl -> 
+                        viewModel.addPlaylistFromUrl(name, url, epgUrl)
                         navController.popBackStack()
                     },
                     onAddLocalFile = { name, uri -> 
@@ -160,7 +163,6 @@ fun MainScreen(viewModel: TvViewModel) {
                 val playlistId = backStackEntry.arguments?.getString("playlistId") ?: ""
                 val playlistName = backStackEntry.arguments?.getString("playlistName") ?: "채널"
                 
-                // 화면에 진입할 때 해당 플레이리스트 데이터를 다시 로드하여 간섭 방지
                 LaunchedEffect(playlistId) {
                     viewModel.loadChannelsForPlaylist(playlistId)
                 }
@@ -170,7 +172,7 @@ fun MainScreen(viewModel: TvViewModel) {
                     categoryName = playlistName,
                     onBackClick = { navController.popBackStack() },
                     onChannelClick = { channel ->
-                        viewModel.selectChannel(channel)
+                        viewModel.selectChannel(channel, true)
                         navController.navigate(Screen.Player.route)
                     },
                     onFavoriteToggle = { viewModel.toggleFavorite(it) }
@@ -179,8 +181,9 @@ fun MainScreen(viewModel: TvViewModel) {
             composable(Screen.Favorites.route) {
                 FavoritesScreen(
                     favoriteChannels = favorites,
+                    // 즐겨찾기 재생 시 사이드바 비활성화
                     onChannelClick = { channel ->
-                        viewModel.selectChannel(channel)
+                        viewModel.selectChannel(channel, false)
                         navController.navigate(Screen.Player.route)
                     },
                     onFavoriteToggle = { viewModel.toggleFavorite(it) }

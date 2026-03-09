@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.minimaltv.app-mergeDebugResources-70:/values-en-rIN/values-en-rIN.xml",
+            "outputFile": "com.example.minimaltv.app-mergeDebugResources-73:/values-en-rIN/values-en-rIN.xml",
             "map": [
                 {
                     "source": "/Users/michael/.gradle/caches/9.0.0/transforms/06b623e6edd6cbc2facb9a7ee86b87d3/transformed/material3-release/res/values-en-rIN/values-en-rIN.xml",

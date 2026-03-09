@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.minimaltv.app-mergeDebugResources-70:/values-in/values-in.xml",
+            "outputFile": "com.example.minimaltv.app-mergeDebugResources-73:/values-in/values-in.xml",
             "map": [
                 {
                     "source": "/Users/michael/.gradle/caches/9.0.0/transforms/286b85c6023bdb676822f14117c4834b/transformed/media3-ui-1.4.1/res/values-in/values-in.xml",

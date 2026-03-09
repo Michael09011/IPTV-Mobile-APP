@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.minimaltv.R
 import com.example.minimaltv.data.local.ThemeMode
+import com.example.minimaltv.data.local.UpdateInterval
 import com.example.minimaltv.ui.TvViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,36 +30,9 @@ import com.example.minimaltv.ui.TvViewModel
 fun SettingsScreen(viewModel: TvViewModel) {
     val settingsManager = viewModel.settingsManager
     val context = LocalContext.current
-    var showEpgDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
-    var epgUrlText by remember { mutableStateOf(settingsManager.epgUrl.value) }
-
-    // EPG 소스 설정 다이얼로그
-    if (showEpgDialog) {
-        AlertDialog(
-            onDismissRequest = { showEpgDialog = false },
-            title = { Text(stringResource(R.string.settings_epg_source)) },
-            text = {
-                OutlinedTextField(
-                    value = epgUrlText,
-                    onValueChange = { epgUrlText = it },
-                    label = { Text(stringResource(R.string.playlist_url)) },
-                    placeholder = { Text("http://example.com/epg.xml") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            confirmButton = {
-                Button(onClick = {
-                    settingsManager.setEpgUrl(epgUrlText)
-                    showEpgDialog = false
-                }) { Text(stringResource(R.string.save)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEpgDialog = false }) { Text(stringResource(R.string.cancel)) }
-            }
-        )
-    }
+    var showUpdateIntervalDialog by remember { mutableStateOf(false) }
 
     // 언어 설정 다이얼로그
     if (showLanguageDialog) {
@@ -136,6 +110,47 @@ fun SettingsScreen(viewModel: TvViewModel) {
         )
     }
 
+    // 자동 업데이트 주기 설정 다이얼로그
+    if (showUpdateIntervalDialog) {
+        AlertDialog(
+            onDismissRequest = { showUpdateIntervalDialog = false },
+            title = { Text("자동 업데이트 주기") },
+            text = {
+                Column {
+                    val intervals = listOf(
+                        UpdateInterval.OFF to "안 함",
+                        UpdateInterval.SIX_HOURS to "6시간마다",
+                        UpdateInterval.TWELVE_HOURS to "12시간마다",
+                        UpdateInterval.TWENTY_FOUR_HOURS to "24시간마다"
+                    )
+                    intervals.forEach { (interval, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.setUpdateInterval(interval)
+                                    showUpdateIntervalDialog = false
+                                }
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = settingsManager.updateInterval.value == interval,
+                                onClick = {
+                                    viewModel.setUpdateInterval(interval)
+                                    showUpdateIntervalDialog = false
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = label)
+                        }
+                    }
+                }
+            },
+            confirmButton = {}
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -189,15 +204,18 @@ fun SettingsScreen(viewModel: TvViewModel) {
                     checked = settingsManager.isEpgEnabled.value,
                     onCheckedChange = { settingsManager.setEpgEnabled(it) }
                 )
-                
-                if (settingsManager.isEpgEnabled.value) {
-                    SettingsNavigationItem(
-                        title = stringResource(R.string.settings_epg_source),
-                        description = settingsManager.epgUrl.value.ifEmpty { stringResource(R.string.settings_epg_source) },
-                        icon = Icons.AutoMirrored.Filled.List,
-                        onClick = { showEpgDialog = true }
-                    )
-                }
+
+                SettingsNavigationItem(
+                    title = "자동 업데이트 주기",
+                    description = when(settingsManager.updateInterval.value) {
+                        UpdateInterval.OFF -> "안 함"
+                        UpdateInterval.SIX_HOURS -> "6시간마다"
+                        UpdateInterval.TWELVE_HOURS -> "12시간마다"
+                        UpdateInterval.TWENTY_FOUR_HOURS -> "24시간마다"
+                    },
+                    icon = Icons.Default.Sync,
+                    onClick = { showUpdateIntervalDialog = true }
+                )
 
                 SettingsSectionHeader(stringResource(R.string.settings_info))
                 ListItem(
@@ -206,7 +224,7 @@ fun SettingsScreen(viewModel: TvViewModel) {
                         context.startActivity(intent)
                     },
                     headlineContent = { Text(stringResource(R.string.settings_version)) },
-                    supportingContent = { Text(stringResource(R.string.settings_latest_version) + " (v1.0.1)") },
+                    supportingContent = { Text(stringResource(R.string.settings_latest_version) + " (v1.0.2)") },
                     leadingContent = {
                         Surface(
                             color = MaterialTheme.colorScheme.surfaceVariant,
@@ -225,11 +243,10 @@ fun SettingsScreen(viewModel: TvViewModel) {
                     }
                 )
                 
-                // 릴리즈 사이트 직접 연결 버튼 추가
                 SettingsNavigationItem(
                     title = stringResource(R.string.settings_release_site),
                     description = "GitHub Releases",
-                    icon = Icons.Default.OpenInNew,
+                    icon = Icons.AutoMirrored.Filled.OpenInNew,
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Michael09011/IPTV-Mobile-APP/releases"))
                         context.startActivity(intent)

@@ -9,6 +9,10 @@ enum class ThemeMode {
     SYSTEM, LIGHT, DARK
 }
 
+enum class UpdateInterval(val hours: Long) {
+    OFF(0), SIX_HOURS(6), TWELVE_HOURS(12), TWENTY_FOUR_HOURS(24)
+}
+
 class SettingsManager(context: Context) {
     private val prefs = context.getSharedPreferences("minimal_tv_settings", Context.MODE_PRIVATE)
 
@@ -17,6 +21,7 @@ class SettingsManager(context: Context) {
     var epgUrl = mutableStateOf(prefs.getString("epg_url", "") ?: "")
     var selectedLanguage = mutableStateOf(prefs.getString("app_language", "ko") ?: "ko")
     var themeMode = mutableStateOf(ThemeMode.valueOf(prefs.getString("theme_mode", ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name))
+    var updateInterval = mutableStateOf(UpdateInterval.valueOf(prefs.getString("update_interval", UpdateInterval.OFF.name) ?: UpdateInterval.OFF.name))
 
     fun setHardwareAcceleration(enabled: Boolean) {
         isHardwareAccelerationEnabled.value = enabled
@@ -44,5 +49,10 @@ class SettingsManager(context: Context) {
     fun setThemeMode(mode: ThemeMode) {
         themeMode.value = mode
         prefs.edit().putString("theme_mode", mode.name).apply()
+    }
+
+    fun setUpdateInterval(interval: UpdateInterval) {
+        updateInterval.value = interval
+        prefs.edit().putString("update_interval", interval.name).apply()
     }
 }

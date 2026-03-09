@@ -1,8 +1,11 @@
 package com.example.minimaltv.data.local;
 
 import android.database.Cursor;
+import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.CoroutinesRoom;
+import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
@@ -15,6 +18,7 @@ import com.example.minimaltv.data.model.PlaylistType;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.IllegalArgumentException;
+import java.lang.Integer;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -35,6 +39,8 @@ public final class PlaylistDao_Impl implements PlaylistDao {
 
   private final EntityInsertionAdapter<Playlist> __insertionAdapterOfPlaylist;
 
+  private final EntityDeletionOrUpdateAdapter<Playlist> __updateAdapterOfPlaylist;
+
   private final SharedSQLiteStatement __preparedStmtOfDeletePlaylistById;
 
   public PlaylistDao_Impl(@NonNull final RoomDatabase __db) {
@@ -43,7 +49,7 @@ public final class PlaylistDao_Impl implements PlaylistDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `playlists` (`id`,`name`,`url`,`channelCount`,`lastUpdated`,`type`) VALUES (?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `playlists` (`id`,`name`,`url`,`epgUrl`,`channelCount`,`lastUpdated`,`type`,`displayOrder`) VALUES (?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -64,13 +70,64 @@ public final class PlaylistDao_Impl implements PlaylistDao {
         } else {
           statement.bindString(3, entity.getUrl());
         }
-        statement.bindLong(4, entity.getChannelCount());
-        if (entity.getLastUpdated() == null) {
-          statement.bindNull(5);
+        if (entity.getEpgUrl() == null) {
+          statement.bindNull(4);
         } else {
-          statement.bindString(5, entity.getLastUpdated());
+          statement.bindString(4, entity.getEpgUrl());
         }
-        statement.bindString(6, __PlaylistType_enumToString(entity.getType()));
+        statement.bindLong(5, entity.getChannelCount());
+        if (entity.getLastUpdated() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getLastUpdated());
+        }
+        statement.bindString(7, __PlaylistType_enumToString(entity.getType()));
+        statement.bindLong(8, entity.getDisplayOrder());
+      }
+    };
+    this.__updateAdapterOfPlaylist = new EntityDeletionOrUpdateAdapter<Playlist>(__db) {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE OR ABORT `playlists` SET `id` = ?,`name` = ?,`url` = ?,`epgUrl` = ?,`channelCount` = ?,`lastUpdated` = ?,`type` = ?,`displayOrder` = ? WHERE `id` = ?";
+      }
+
+      @Override
+      protected void bind(@NonNull final SupportSQLiteStatement statement,
+          @NonNull final Playlist entity) {
+        if (entity.getId() == null) {
+          statement.bindNull(1);
+        } else {
+          statement.bindString(1, entity.getId());
+        }
+        if (entity.getName() == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.getName());
+        }
+        if (entity.getUrl() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindString(3, entity.getUrl());
+        }
+        if (entity.getEpgUrl() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getEpgUrl());
+        }
+        statement.bindLong(5, entity.getChannelCount());
+        if (entity.getLastUpdated() == null) {
+          statement.bindNull(6);
+        } else {
+          statement.bindString(6, entity.getLastUpdated());
+        }
+        statement.bindString(7, __PlaylistType_enumToString(entity.getType()));
+        statement.bindLong(8, entity.getDisplayOrder());
+        if (entity.getId() == null) {
+          statement.bindNull(9);
+        } else {
+          statement.bindString(9, entity.getId());
+        }
       }
     };
     this.__preparedStmtOfDeletePlaylistById = new SharedSQLiteStatement(__db) {
@@ -84,7 +141,8 @@ public final class PlaylistDao_Impl implements PlaylistDao {
   }
 
   @Override
-  public Object insertPlaylist(final Playlist playlist, final Continuation<? super Unit> arg1) {
+  public Object insertPlaylist(final Playlist playlist,
+      final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -98,11 +156,30 @@ public final class PlaylistDao_Impl implements PlaylistDao {
           __db.endTransaction();
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
-  public Object deletePlaylistById(final String id, final Continuation<? super Unit> arg1) {
+  public Object updatePlaylists(final List<Playlist> playlists,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        __db.beginTransaction();
+        try {
+          __updateAdapterOfPlaylist.handleMultiple(playlists);
+          __db.setTransactionSuccessful();
+          return Unit.INSTANCE;
+        } finally {
+          __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deletePlaylistById(final String id, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
@@ -127,12 +204,12 @@ public final class PlaylistDao_Impl implements PlaylistDao {
           __preparedStmtOfDeletePlaylistById.release(_stmt);
         }
       }
-    }, arg1);
+    }, $completion);
   }
 
   @Override
   public Flow<List<Playlist>> getAllPlaylists() {
-    final String _sql = "SELECT * FROM playlists";
+    final String _sql = "SELECT * FROM playlists ORDER BY displayOrder ASC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"playlists"}, new Callable<List<Playlist>>() {
       @Override
@@ -143,9 +220,11 @@ public final class PlaylistDao_Impl implements PlaylistDao {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "url");
+          final int _cursorIndexOfEpgUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "epgUrl");
           final int _cursorIndexOfChannelCount = CursorUtil.getColumnIndexOrThrow(_cursor, "channelCount");
           final int _cursorIndexOfLastUpdated = CursorUtil.getColumnIndexOrThrow(_cursor, "lastUpdated");
           final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
+          final int _cursorIndexOfDisplayOrder = CursorUtil.getColumnIndexOrThrow(_cursor, "displayOrder");
           final List<Playlist> _result = new ArrayList<Playlist>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Playlist _item;
@@ -167,6 +246,12 @@ public final class PlaylistDao_Impl implements PlaylistDao {
             } else {
               _tmpUrl = _cursor.getString(_cursorIndexOfUrl);
             }
+            final String _tmpEpgUrl;
+            if (_cursor.isNull(_cursorIndexOfEpgUrl)) {
+              _tmpEpgUrl = null;
+            } else {
+              _tmpEpgUrl = _cursor.getString(_cursorIndexOfEpgUrl);
+            }
             final int _tmpChannelCount;
             _tmpChannelCount = _cursor.getInt(_cursorIndexOfChannelCount);
             final String _tmpLastUpdated;
@@ -177,7 +262,9 @@ public final class PlaylistDao_Impl implements PlaylistDao {
             }
             final PlaylistType _tmpType;
             _tmpType = __PlaylistType_stringToEnum(_cursor.getString(_cursorIndexOfType));
-            _item = new Playlist(_tmpId,_tmpName,_tmpUrl,_tmpChannelCount,_tmpLastUpdated,_tmpType);
+            final int _tmpDisplayOrder;
+            _tmpDisplayOrder = _cursor.getInt(_cursorIndexOfDisplayOrder);
+            _item = new Playlist(_tmpId,_tmpName,_tmpUrl,_tmpEpgUrl,_tmpChannelCount,_tmpLastUpdated,_tmpType,_tmpDisplayOrder);
             _result.add(_item);
           }
           return _result;
@@ -191,6 +278,38 @@ public final class PlaylistDao_Impl implements PlaylistDao {
         _statement.release();
       }
     });
+  }
+
+  @Override
+  public Object getMaxOrder(final Continuation<? super Integer> $completion) {
+    final String _sql = "SELECT MAX(displayOrder) FROM playlists";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Integer>() {
+      @Override
+      @Nullable
+      public Integer call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final Integer _result;
+          if (_cursor.moveToFirst()) {
+            final Integer _tmp;
+            if (_cursor.isNull(0)) {
+              _tmp = null;
+            } else {
+              _tmp = _cursor.getInt(0);
+            }
+            _result = _tmp;
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
   }
 
   @NonNull

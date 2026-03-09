@@ -8,14 +8,20 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlaylistDao {
-    @Query("SELECT * FROM playlists")
+    @Query("SELECT * FROM playlists ORDER BY displayOrder ASC")
     fun getAllPlaylists(): Flow<List<Playlist>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPlaylist(playlist: Playlist)
 
+    @Update
+    suspend fun updatePlaylists(playlists: List<Playlist>)
+
     @Query("DELETE FROM playlists WHERE id = :id")
     suspend fun deletePlaylistById(id: String)
+    
+    @Query("SELECT MAX(displayOrder) FROM playlists")
+    suspend fun getMaxOrder(): Int?
 }
 
 @Dao
@@ -39,7 +45,7 @@ interface ChannelDao {
     suspend fun deleteChannelsByPlaylist(playlistId: String)
 }
 
-@Database(entities = [Playlist::class, Channel::class], version = 3, exportSchema = false)
+@Database(entities = [Playlist::class, Channel::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
     abstract fun channelDao(): ChannelDao
