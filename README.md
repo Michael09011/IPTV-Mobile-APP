@@ -15,6 +15,7 @@ Minimal TV는 Jetpack Compose UI와 Media3 재생 엔진을 사용하는 안드�
 * 백그라운드 자동 갱신(WorkManager)
 * 채널 검색 및 필터
 * Edge-to-Edge 전체 화면 지원
+* 언어변경 옵션
 
 ## 프로젝트 구조
 
