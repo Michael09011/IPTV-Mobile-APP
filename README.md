@@ -1,6 +1,6 @@
 # Minimal TV - Android IPTV application
 
-![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue) ![Android](https://img.shields.io/badge/Android-15-green) ![Gradle](https://img.shields.io/badge/Gradle-9.0.0-blue) [![Telegram](https://img.shields.io/badge/Telegram-Join-blue?logo=telegram)](https://t.me/micaca090)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue) ![Android](https://img.shields.io/badge/Android-15-green) ![Gradle](https://img.shields.io/badge/Gradle-9.0.0-blue) ![Android Studio](https://img.shields.io/badge/Android%20Studio-2024.2-blue?style=flat-square&logo=androidstudio&logoColor=white) ![Gemini](https://img.shields.io/badge/Gemini-ready-purple?style=flat-square&logo=google&logoColor=white) [![Telegram](https://img.shields.io/badge/Telegram-Join-blue?logo=telegram)](https://t.me/micaca090)
 
 <img src="https://github.com/user-attachments/assets/b5b27858-6db6-4a0f-956a-54a20decd698" width="300" alt="Minimal TV screenshot">
 
