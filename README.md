@@ -2,7 +2,8 @@
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue) ![Android](https://img.shields.io/badge/Android-15-green) ![Gradle](https://img.shields.io/badge/Gradle-9.0.0-blue) [![Telegram](https://img.shields.io/badge/Telegram-Join-blue?logo=telegram)](https://t.me/micaca090)
 
-<img src="https://github.com/user-attachments/assets/b5b27858-6db6-4a0f-956a-54a20decd698" width="300" alt="Minimal TV screenshot">
+
+<img width="256" height="256" alt="icon" src="https://github.com/user-attachments/assets/0211dcff-dc75-4376-8172-2e69b1f9c512" />
 
 Minimal TV는 Jetpack Compose UI와 Media3 재생 엔진을 사용하는 안드로이드 IPTV 플레이어입니다. Android 8.0 이상에서 실행되며, Android 15(API 35)에 최적화되어 있습니다.
 
