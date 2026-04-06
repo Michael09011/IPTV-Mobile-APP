@@ -2,62 +2,51 @@
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue) ![Android](https://img.shields.io/badge/Android-15-green) ![Gradle](https://img.shields.io/badge/Gradle-9.0.0-blue) [![Telegram](https://img.shields.io/badge/Telegram-Join-blue?logo=telegram)](https://t.me/micaca090)
 
-<img src="https://github.com/user-attachments/assets/b5b27858-6db6-4a0f-956a-54a20decd698" width="300" alt="Screenshot">
+<img src="https://github.com/user-attachments/assets/b5b27858-6db6-4a0f-956a-54a20decd698" width="300" alt="Minimal TV screenshot">
 
-Minimal TV는 고성능 미디어 엔진과 세련된 Jetpack Compose UI를 결합한 차세대 IPTV 플레이어입니다. 사용자 중심의 와이어프레임 설계를 바탕으로 **안드로이드 15(API 35)** 환경에 최적화되었으며, 안드로이드 8.0(Oreo) 이상 버전과의 폭넓은 호환성을 제공합니다.
+Minimal TV는 Jetpack Compose UI와 Media3 재생 엔진을 사용하는 안드로이드 IPTV 플레이어입니다. Android 8.0 이상에서 실행되며, Android 15(API 35)에 최적화되어 있습니다.
 
-## 🚀 최신 업데이트 (v1.0.2)
+## 주요 기능
 
-*   **지능형 자동 업데이트 시스템**: `WorkManager`를 도입하여 앱이 꺼져 있어도 설정한 주기(6/12/24시간)마다 M3U 및 EPG를 자동으로 갱신하고 알림을 제공합니다.
-*   **초저지연 UI 렌더링**: 리컴포지션 최적화 및 `derivedStateOf` 적용으로 수천 개의 채널 리스트에서도 부드러운 스크롤과 즉각적인 검색 반응을 보장합니다.
-*   **스마트 메모리 관리**: `Coil` 이미지 엔진 최적화를 통해 채널 로고 로딩 시 메모리 점유율을 대폭 낮췄습니다.
-*   **데이터 무결성 강화**: 채널 고유 ID 시스템을 도입하여 플레이리스트 새로고침 시에도 즐겨찾기 상태가 완벽하게 유지됩니다.
+* 플레이리스트 및 EPG 지원
+* HLS 기반 스트리밍 재생
+* 즐겨찾기 및 최근 시청 목록
+* 백그라운드 자동 갱신(WorkManager)
+* 채널 검색 및 필터
+* Edge-to-Edge 전체 화면 지원
 
-## 📁 프로젝트 구조 (Project Structure)
+## 프로젝트 구조
 
 ```text
 com.example.minimaltv
 ├── data
-│   ├── local           # Room Database, SettingsManager, UpdateInterval
-│   ├── model           # Playlist, Channel, EpgProgram
-│   ├── parser          # M3uParser, EpgParser
-│   └── worker          # UpdateWorker (백그라운드 자동 갱신 엔진)
-├── player              # ExoPlayerManager (HLS 최적화 엔진)
+│   ├── local       # Room 데이터베이스, 설정 저장소
+│   ├── model       # Playlist, Channel, EpgProgram
+│   ├── parser      # M3U 및 EPG 파서
+│   └── worker      # 백그라운드 업데이트 Worker
+├── player          # ExoPlayer 관련 재생 관리
 ├── ui
-│   ├── channel         # 고성능 채널 필터링 및 검색 UI
-│   ├── favorites       # 즐겨찾기 관리
-│   ├── player          # 사이드바 연동 몰입형 플레이어
-│   ├── playlist        # 최근 시청 및 플레이리스트 관리
-│   ├── settings        # 자동 업데이트 주기 및 다국어 설정
-│   └── theme           # Material 3 Edge-to-Edge 테마
-└── MainActivity.kt     # 앱 진입점 및 NavHost 설정
+│   ├── channel     # 채널 목록 및 검색 화면
+│   ├── favorites   # 즐겨찾기 화면
+│   ├── player      # 재생 화면 및 컨트롤
+│   ├── playlist    # 플레이리스트 관리 화면
+│   ├── settings    # 앱 설정 화면
+│   └── theme       # Material 3 테마
+└── MainActivity.kt # 앱 진입점 및 내비게이션
 ```
 
-## 🌟 주요 업데이트 기능
+## 기술 스택
 
-### 1. 지능형 자동 갱신 (New)
-*   **백그라운드 동기화**: `WorkManager` 기반 스케줄링으로 최신 채널 목록을 놓치지 않고 유지.
-*   **상태 표시줄 알림**: 업데이트 완료 시 시스템 알림을 통해 갱신된 플레이리스트 개수 확인 가능.
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-7f52ff?style=flat-square&logo=jetbrains&logoColor=white) ![Media3](https://img.shields.io/badge/Androidx%20Media3-339933?style=flat-square&logo=android&logoColor=white) ![ExoPlayer](https://img.shields.io/badge/ExoPlayer-000000?style=flat-square&logo=google&logoColor=white) ![WorkManager](https://img.shields.io/badge/WorkManager-3DDC84?style=flat-square&logo=android&logoColor=white) ![Room](https://img.shields.io/badge/Room-3DDC84?style=flat-square&logo=sqlite&logoColor=white) ![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?style=flat-square&logo=kotlin&logoColor=white) ![Android 15](https://img.shields.io/badge/Android%2015-3DDC84?style=flat-square&logo=android&logoColor=white)
 
-### 2. 혁신적인 플레이어 경험
-*   **전천후 사이드바**: 시청 중 즉시 호출 가능한 반투명 채널 목록.
-*   **스마트 컨트롤**: 음량, 비율(Fit/Fill/Zoom), 즐겨찾기를 한 곳에서 제어.
-*   **Edge-to-Edge**: 안드로이드 15의 풀스크린 모드를 완벽 지원하여 광활한 시야 제공.
+* Android Jetpack Compose
+* Androidx Media3 / ExoPlayer
+* WorkManager
+* Room
+* Kotlin 2.0.21
+* Target SDK 35
 
-### 3. 고성능 아키텍처
-*   **독립적 컨텍스트**: 플레이리스트 간 데이터 섞임 방지 로직 적용.
-*   **고유 ID 시스템**: 스트림 URL 기반 해싱으로 데이터 중복 방지 및 즐겨찾기 보존.
-
-## 🛠 기술 스택
-
-*   **프론트엔드**: Android (Jetpack Compose, Material 3, Coil)
-*   **미디어 엔진**: Androidx Media3 (ExoPlayer + HLS)
-*   **백그라운드 작업**: WorkManager
-*   **데이터베이스**: Room Persistence Library
-*   **언어**: Kotlin 2.0.21
-*   **타겟 SDK**: 35 (Android 15)
-
-## 🚀 빌드 가이드 (Build Guide)
+## 빌드 및 실행
 
 ### 1. 프로젝트 복제
 ```bash
@@ -65,17 +54,25 @@ git clone https://github.com/michael/IPTV-Mobile-APP.git
 cd IPTV-Mobile-APP
 ```
 
-### 2. IDE에서 빌드
-1.  Android Studio Ladybug 이상에서 프로젝트 오픈.
-2.  Gradle Sync 완료 후 상단 **Run 'app'** 버튼 클릭.
+### 2. Android Studio
+1. Android Studio에서 프로젝트를 엽니다.
+2. Gradle Sync가 완료되면 `Run 'app'` 버튼을 클릭합니다.
 
-### 3. 터미널 명령어로 빌드 (CLI)
-*   **APK 빌드 (Debug)**: `./gradlew assembleDebug`
-*   **기기에 설치**: `./gradlew installDebug`
+### 3. CLI 빌드
+```bash
+./gradlew assembleDebug
+./gradlew installDebug
+```
 
-## 📄 라이선스
+## 시스템 요구 사항
 
-이 프로젝트는 MIT 라이선스 하에 있습니다.
+* Android 8.0 이상
+* Kotlin 2.0.21
+* Gradle 9.0.0
+
+## 라이선스
+
+MIT License
 
 ---
 
