@@ -87,6 +87,11 @@
     <string name="settings_update_interval">자동 업데이트 주기</string>
     <string name="settings_update_off">안 함</string>
     <string name="settings_version">버전 정보</string>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_app_logo</item>
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="postSplashScreenTheme">@style/Theme.MinimalTV</item>
+    </style>
     <style name="Theme.MinimalTV" parent="Theme.Material3.DayNight.NoActionBar">
         
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>

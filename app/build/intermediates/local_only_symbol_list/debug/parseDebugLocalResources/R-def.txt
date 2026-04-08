@@ -91,6 +91,7 @@ string settings_update_6h
 string settings_update_interval
 string settings_update_off
 string settings_version
+style Theme.App.Starting
 style Theme.MinimalTV
 xml backup_rules
 xml data_extraction_rules

@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-38:12
-INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-38:12
-INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-38:12
-INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-38:12
+ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-37:12
+INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-37:12
+INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-37:12
+INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:2:1-37:12
 MERGED from [com.google.android.material:material:1.12.0] /Users/michael/.gradle/caches/9.0.0/transforms/fd766a0c579e4196c6a12cb568b6f893/transformed/material-1.12.0/AndroidManifest.xml:17:1-24:12
 MERGED from [io.coil-kt:coil-compose:2.6.0] /Users/michael/.gradle/caches/9.0.0/transforms/6b25a0b71d29f3674cddf3da36b610e5/transformed/coil-compose-2.6.0/AndroidManifest.xml:2:1-7:12
 MERGED from [io.coil-kt:coil-compose-base:2.6.0] /Users/michael/.gradle/caches/9.0.0/transforms/114f20389efed4cbf5194c141d110a1c/transformed/coil-compose-base-2.6.0/AndroidManifest.xml:2:1-7:12
@@ -84,6 +84,7 @@ MERGED from [androidx.graphics:graphics-path:1.0.1] /Users/michael/.gradle/cache
 MERGED from [androidx.core:core:1.15.0] /Users/michael/.gradle/caches/9.0.0/transforms/df364bc475456923112a0e32ed5b8dc3/transformed/core-1.15.0/AndroidManifest.xml:17:1-30:12
 MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /Users/michael/.gradle/caches/9.0.0/transforms/251330753fff80e990e3e4fba99eee88/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:17:1-23:12
 MERGED from [androidx.core:core-ktx:1.15.0] /Users/michael/.gradle/caches/9.0.0/transforms/f24da93759dbdceaaf2c10dfa81d7d10/transformed/core-ktx-1.15.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core-splashscreen:1.0.1] /Users/michael/.gradle/caches/9.0.0/transforms/831d24bf295cbd0a4381ea154ca57c07/transformed/core-splashscreen-1.0.1/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/michael/.gradle/caches/9.0.0/transforms/43e4e5f2d593339b371c50cbec28a300/transformed/room-runtime-2.6.1/AndroidManifest.xml:17:1-31:12
 MERGED from [androidx.room:room-ktx:2.6.1] /Users/michael/.gradle/caches/9.0.0/transforms/05cde0ab856ebc2f2fb0254b034e4cd0/transformed/room-ktx-2.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] /Users/michael/.gradle/caches/9.0.0/transforms/12e930c62d251f2da1b56dc1e4c4be0d/transformed/sqlite-framework-2.4.0/AndroidManifest.xml:17:1-22:12
@@ -138,8 +139,8 @@ ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidM
 	android:name
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:11:22-72
 application
-ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:13:5-36:19
-INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:13:5-36:19
+ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:13:5-35:19
+INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:13:5-35:19
 MERGED from [com.google.android.material:material:1.12.0] /Users/michael/.gradle/caches/9.0.0/transforms/fd766a0c579e4196c6a12cb568b6f893/transformed/material-1.12.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.12.0] /Users/michael/.gradle/caches/9.0.0/transforms/fd766a0c579e4196c6a12cb568b6f893/transformed/material-1.12.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /Users/michael/.gradle/caches/9.0.0/transforms/2347ef7f155ae09609523c9f55482709/transformed/constraintlayout-2.0.1/AndroidManifest.xml:9:5-20
@@ -179,33 +180,31 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/mich
 	android:allowBackup
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:14:9-35
 	android:theme
-		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:21:9-47
+		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:21:9-50
 	android:dataExtractionRules
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:15:9-65
 	android:usesCleartextTraffic
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:22:9-44
 activity#com.example.minimaltv.MainActivity
-ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:25:9-35:20
+ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:25:9-34:20
 	android:exported
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:27:13-36
 	android:supportsPictureInPicture
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:29:13-52
 	android:configChanges
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:28:13-91
-	android:theme
-		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:30:13-51
 	android:name
 		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:26:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:31:13-34:29
+ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:30:13-33:29
 action#android.intent.action.MAIN
-ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:32:17-69
+ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:31:17-69
 	android:name
-		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:32:25-66
+		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:31:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:33:17-77
+ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:32:17-77
 	android:name
-		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:33:27-74
+		ADDED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml:32:27-74
 uses-sdk
 INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/michael/Documents/GitHub/IPTV-Mobile-APP/app/src/main/AndroidManifest.xml
@@ -370,6 +369,8 @@ MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /Users/micha
 MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /Users/michael/.gradle/caches/9.0.0/transforms/251330753fff80e990e3e4fba99eee88/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
 MERGED from [androidx.core:core-ktx:1.15.0] /Users/michael/.gradle/caches/9.0.0/transforms/f24da93759dbdceaaf2c10dfa81d7d10/transformed/core-ktx-1.15.0/AndroidManifest.xml:5:5-44
 MERGED from [androidx.core:core-ktx:1.15.0] /Users/michael/.gradle/caches/9.0.0/transforms/f24da93759dbdceaaf2c10dfa81d7d10/transformed/core-ktx-1.15.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-splashscreen:1.0.1] /Users/michael/.gradle/caches/9.0.0/transforms/831d24bf295cbd0a4381ea154ca57c07/transformed/core-splashscreen-1.0.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core-splashscreen:1.0.1] /Users/michael/.gradle/caches/9.0.0/transforms/831d24bf295cbd0a4381ea154ca57c07/transformed/core-splashscreen-1.0.1/AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/michael/.gradle/caches/9.0.0/transforms/43e4e5f2d593339b371c50cbec28a300/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/michael/.gradle/caches/9.0.0/transforms/43e4e5f2d593339b371c50cbec28a300/transformed/room-runtime-2.6.1/AndroidManifest.xml:21:5-44
 MERGED from [androidx.room:room-ktx:2.6.1] /Users/michael/.gradle/caches/9.0.0/transforms/05cde0ab856ebc2f2fb0254b034e4cd0/transformed/room-ktx-2.6.1/AndroidManifest.xml:20:5-44
