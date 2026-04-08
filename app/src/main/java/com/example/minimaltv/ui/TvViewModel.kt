@@ -34,12 +34,6 @@ class TvViewModel(application: Application) : AndroidViewModel(application) {
     private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
     val playlists: StateFlow<List<Playlist>> = _playlists.asStateFlow()
 
-    private val _favorites = MutableStateFlow<List<Channel>>(emptyList())
-    val favorites: StateFlow<List<Channel>> = _favorites.asStateFlow()
-
-    private val _recentChannels = MutableStateFlow<List<Channel>>(emptyList())
-    val recentChannels: StateFlow<List<Channel>> = _recentChannels.asStateFlow()
-
     private val _selectedChannels = MutableStateFlow<List<Channel>>(emptyList())
     val selectedChannels: StateFlow<List<Channel>> = _selectedChannels.asStateFlow()
 
@@ -66,12 +60,6 @@ class TvViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadData() {
         viewModelScope.launch {
             playlistDao.getAllPlaylists().collect { _playlists.value = it }
-        }
-        viewModelScope.launch {
-            channelDao.getFavoriteChannels().collect { _favorites.value = it }
-        }
-        viewModelScope.launch {
-            channelDao.getRecentChannels().collect { _recentChannels.value = it }
         }
     }
 

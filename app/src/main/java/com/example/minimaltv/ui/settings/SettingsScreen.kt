@@ -114,14 +114,14 @@ fun SettingsScreen(viewModel: TvViewModel) {
     if (showUpdateIntervalDialog) {
         AlertDialog(
             onDismissRequest = { showUpdateIntervalDialog = false },
-            title = { Text("자동 업데이트 주기") },
+            title = { Text(stringResource(R.string.settings_update_interval)) },
             text = {
                 Column {
                     val intervals = listOf(
-                        UpdateInterval.OFF to "안 함",
-                        UpdateInterval.SIX_HOURS to "6시간마다",
-                        UpdateInterval.TWELVE_HOURS to "12시간마다",
-                        UpdateInterval.TWENTY_FOUR_HOURS to "24시간마다"
+                        UpdateInterval.OFF to stringResource(R.string.settings_update_off),
+                        UpdateInterval.SIX_HOURS to stringResource(R.string.settings_update_6h),
+                        UpdateInterval.TWELVE_HOURS to stringResource(R.string.settings_update_12h),
+                        UpdateInterval.TWENTY_FOUR_HOURS to stringResource(R.string.settings_update_24h)
                     )
                     intervals.forEach { (interval, label) ->
                         Row(
@@ -206,12 +206,12 @@ fun SettingsScreen(viewModel: TvViewModel) {
                 )
 
                 SettingsNavigationItem(
-                    title = "자동 업데이트 주기",
+                    title = stringResource(R.string.settings_update_interval),
                     description = when(settingsManager.updateInterval.value) {
-                        UpdateInterval.OFF -> "안 함"
-                        UpdateInterval.SIX_HOURS -> "6시간마다"
-                        UpdateInterval.TWELVE_HOURS -> "12시간마다"
-                        UpdateInterval.TWENTY_FOUR_HOURS -> "24시간마다"
+                        UpdateInterval.OFF -> stringResource(R.string.settings_update_off)
+                        UpdateInterval.SIX_HOURS -> stringResource(R.string.settings_update_6h)
+                        UpdateInterval.TWELVE_HOURS -> stringResource(R.string.settings_update_12h)
+                        UpdateInterval.TWENTY_FOUR_HOURS -> stringResource(R.string.settings_update_24h)
                     },
                     icon = Icons.Default.Sync,
                     onClick = { showUpdateIntervalDialog = true }
@@ -224,7 +224,7 @@ fun SettingsScreen(viewModel: TvViewModel) {
                         context.startActivity(intent)
                     },
                     headlineContent = { Text(stringResource(R.string.settings_version)) },
-                    supportingContent = { Text(stringResource(R.string.settings_latest_version) + " (v1.0.2)") },
+                    supportingContent = { Text(stringResource(R.string.settings_latest_version) + " (v1.0.3)") },
                     leadingContent = {
                         Surface(
                             color = MaterialTheme.colorScheme.surfaceVariant,
@@ -238,7 +238,7 @@ fun SettingsScreen(viewModel: TvViewModel) {
                     },
                     trailingContent = {
                         Surface(color = Color(0xFF4CAF50), shape = androidx.compose.foundation.shape.CircleShape) {
-                            Text(text = "Latest", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), color = Color.White, style = MaterialTheme.typography.labelSmall)
+                            Text(text = stringResource(R.string.settings_status_latest), modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), color = Color.White, style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 )
@@ -256,7 +256,7 @@ fun SettingsScreen(viewModel: TvViewModel) {
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 Text(
-                    text = "© 2026 Michael. All rights reserved.",
+                    text = stringResource(R.string.settings_copyright),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall,

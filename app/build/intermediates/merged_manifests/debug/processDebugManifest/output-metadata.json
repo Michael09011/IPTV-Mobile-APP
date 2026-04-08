@@ -4,7 +4,7 @@
     "type": "MERGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.example.minimaltv",
+  "applicationId": "com.example.minimaltv.debug",
   "variantName": "debug",
   "elements": [
     {

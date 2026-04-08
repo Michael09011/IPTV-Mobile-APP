@@ -10,7 +10,7 @@
     <string name="recent_channels_title">最近視聴したチャンネル</string>
 
     <!-- Playlist -->
-    <string name="add_playlist">追加</string>
+    <string name="add_playlist">추가</string>
     <string name="add_playlist_title">プレイリストの追加</string>
     <string name="delete_playlist">削除</string>
     <string name="refresh_playlist">更新</string>
@@ -19,7 +19,7 @@
     <string name="playlist_name_optional">プレイリスト名 (任意)</string>
     <string name="playlist_name_placeholder">名前を入力してください (例: 日本のチャンネル)</string>
     <string name="add_method_title">追加方法の選択</string>
-    <string name="add_local_file">ローカルファイルの追加</string>
+    <string name="add_local_file">ロー컬 파일 추가</string>
     <string name="select_m3u_file">M3UまたはM3U8ファイルを選択してください。</string>
     <string name="file_selected">選択済み: %s</string>
     <string name="add_url">URLで追加</string>
@@ -69,10 +69,17 @@
     <string name="settings_latest_version">最新バージョンを使用中</string>
     <string name="settings_release_site">リリースサイトを表示</string>
     <string name="settings_app_lang_dialog_title">アプリの言語設定</string>
+    <string name="settings_update_interval">自動更新間隔</string>
+    <string name="settings_update_off">なし</string>
+    <string name="settings_update_6h">6時間ごと</string>
+    <string name="settings_update_12h">12時間ごと</string>
+    <string name="settings_update_24h">24時間ごと</string>
+    <string name="settings_status_latest">最新</string>
+    <string name="settings_copyright">© 2026 Michael. All rights reserved.</string>
 
     <!-- Player -->
     <string name="player_no_info">チャンネル情報なし</string>
-    <string name="player_now_playing">現在再生中: %s</string>
+    <string name="player_now_playing">현재 재생 중: %s</string>
     <string name="player_back">戻る</string>
     <string name="player_next">次へ</string>
     <string name="player_prev">前へ</string>

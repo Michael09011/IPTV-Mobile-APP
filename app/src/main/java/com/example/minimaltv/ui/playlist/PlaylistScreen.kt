@@ -37,18 +37,18 @@ import com.example.minimaltv.ui.TvViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistScreen(
-    viewModel: TvViewModel,
+    tvViewModel: TvViewModel,
+    recentChannels: List<Channel>,
     onAddClick: () -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
     onChannelClick: (Channel, Boolean) -> Unit,
     onDeletePlaylist: (Playlist) -> Unit,
     onRefreshPlaylist: (Playlist) -> Unit,
-    onEditPlaylist: (Playlist, String, String) -> Unit, // 파라미터 확장
+    onEditPlaylist: (Playlist, String, String) -> Unit,
     onMovePlaylist: (Playlist, Boolean) -> Unit,
     onRefreshAll: () -> Unit
 ) {
-    val playlists by viewModel.playlists.collectAsState()
-    val recentChannels by viewModel.recentChannels.collectAsState()
+    val playlists by tvViewModel.playlists.collectAsState()
     val context = LocalContext.current
     
     var showTopMenu by remember { mutableStateOf(false) }
@@ -59,7 +59,7 @@ fun PlaylistScreen(
     if (playlistToEdit != null) {
         AlertDialog(
             onDismissRequest = { playlistToEdit = null },
-            title = { Text("플레이리스트 편집") },
+            title = { Text(stringResource(R.string.rename_playlist)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
@@ -262,7 +262,7 @@ fun PlaylistCard(
                 }
                 DropdownMenu(expanded = showItemMenu, onDismissRequest = { showItemMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text("편집") },
+                        text = { Text(stringResource(R.string.rename_playlist)) },
                         onClick = { onEdit(); showItemMenu = false },
                         leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
                     )

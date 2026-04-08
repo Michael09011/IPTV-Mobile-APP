@@ -48,9 +48,9 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"共有"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g>と共有"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"折りたたむ"</string>
-    <string name="add_local_file">ローカルファイルの追加</string>
+    <string name="add_local_file">ロー컬 파일 추가</string>
     <string name="add_method_title">追加方法の選択</string>
-    <string name="add_playlist">追加</string>
+    <string name="add_playlist">추가</string>
     <string name="add_playlist_confirm">追加する</string>
     <string name="add_playlist_title">プレイリストの追加</string>
     <string name="add_url">URLで追加</string>
@@ -278,7 +278,7 @@
     <string name="player_favorites">お気に入り</string>
     <string name="player_next">次へ</string>
     <string name="player_no_info">チャンネル情報なし</string>
-    <string name="player_now_playing">現在再生中: %s</string>
+    <string name="player_now_playing">현재 재생 중: %s</string>
     <string name="player_play_pause">再生/一時停止</string>
     <string name="player_prev">前へ</string>
     <string name="player_sidebar">サイドバー</string>
@@ -305,6 +305,7 @@
     <string name="select_m3u_file">M3UまたはM3U8ファイルを選択してください。</string>
     <string msgid="6043586758067023" name="selected">"選択済み"</string>
     <string name="settings_app_lang_dialog_title">アプリの言語設定</string>
+    <string name="settings_copyright">© 2026 Michael. All rights reserved.</string>
     <string name="settings_epg">EPG情報の表示</string>
     <string name="settings_epg_desc">チャンネルリストとプレイヤーに番組情報を表示します。</string>
     <string name="settings_epg_source">EPGソース設定</string>
@@ -316,10 +317,16 @@
     <string name="settings_latest_version">最新バージョンを使用中</string>
     <string name="settings_playback">再生とパフォーマンス</string>
     <string name="settings_release_site">リリースサイトを表示</string>
+    <string name="settings_status_latest">最新</string>
     <string name="settings_theme">テーマ設定</string>
     <string name="settings_theme_dark">ダークモード</string>
     <string name="settings_theme_light">ライトモード</string>
     <string name="settings_theme_system">システムデフォルト</string>
+    <string name="settings_update_12h">12時間ごと</string>
+    <string name="settings_update_24h">24時間ごと</string>
+    <string name="settings_update_6h">6時間ごと</string>
+    <string name="settings_update_interval">自動更新間隔</string>
+    <string name="settings_update_off">なし</string>
     <string name="settings_version">バージョン情報</string>
     <string name="side_sheet_accessibility_pane_title">サイドシート</string>
     <string msgid="4139871816613051306" name="state_empty">"なし"</string>

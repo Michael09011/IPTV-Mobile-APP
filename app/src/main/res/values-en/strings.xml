@@ -69,6 +69,13 @@
     <string name="settings_latest_version">Using latest version</string>
     <string name="settings_release_site">Visit Release Page</string>
     <string name="settings_app_lang_dialog_title">App Language</string>
+    <string name="settings_update_interval">Auto Update Interval</string>
+    <string name="settings_update_off">Off</string>
+    <string name="settings_update_6h">Every 6 hours</string>
+    <string name="settings_update_12h">Every 12 hours</string>
+    <string name="settings_update_24h">Every 24 hours</string>
+    <string name="settings_status_latest">Latest</string>
+    <string name="settings_copyright">© 2026 Michael. All rights reserved.</string>
 
     <!-- Player -->
     <string name="player_no_info">No channel info</string>

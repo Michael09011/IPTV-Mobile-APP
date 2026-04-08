@@ -4316,6 +4316,7 @@ string searchview_navigation_content_description
 string select_m3u_file
 string selected
 string settings_app_lang_dialog_title
+string settings_copyright
 string settings_epg
 string settings_epg_desc
 string settings_epg_source
@@ -4327,10 +4328,16 @@ string settings_language
 string settings_latest_version
 string settings_playback
 string settings_release_site
+string settings_status_latest
 string settings_theme
 string settings_theme_dark
 string settings_theme_light
 string settings_theme_system
+string settings_update_12h
+string settings_update_24h
+string settings_update_6h
+string settings_update_interval
+string settings_update_off
 string settings_version
 string side_sheet_accessibility_pane_title
 string side_sheet_behavior

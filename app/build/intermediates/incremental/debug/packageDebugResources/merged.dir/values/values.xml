@@ -64,6 +64,7 @@
     <string name="save">저장</string>
     <string name="select_m3u_file">M3U 또는 M3U8 파일을 선택하세요.</string>
     <string name="settings_app_lang_dialog_title">앱 언어 설정</string>
+    <string name="settings_copyright">© 2026 Michael. All rights reserved.</string>
     <string name="settings_epg">EPG 정보 표시</string>
     <string name="settings_epg_desc">채널 목록과 플레이어에 방송 편성 정보를 표시합니다.</string>
     <string name="settings_epg_source">EPG 소스 설정</string>
@@ -75,10 +76,16 @@
     <string name="settings_latest_version">최신 버전 사용 중</string>
     <string name="settings_playback">재생 및 성능</string>
     <string name="settings_release_site">릴리즈 사이트 방문</string>
+    <string name="settings_status_latest">Latest</string>
     <string name="settings_theme">테마 설정</string>
     <string name="settings_theme_dark">다크 모드</string>
     <string name="settings_theme_light">라이트 모드</string>
     <string name="settings_theme_system">시스템 기본값</string>
+    <string name="settings_update_12h">12시간마다</string>
+    <string name="settings_update_24h">24시간마다</string>
+    <string name="settings_update_6h">6시간마다</string>
+    <string name="settings_update_interval">자동 업데이트 주기</string>
+    <string name="settings_update_off">안 함</string>
     <string name="settings_version">버전 정보</string>
     <style name="Theme.MinimalTV" parent="Theme.Material3.DayNight.NoActionBar">
         

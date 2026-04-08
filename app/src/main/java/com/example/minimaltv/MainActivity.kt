@@ -29,8 +29,10 @@ import androidx.navigation.navArgument
 import com.example.minimaltv.data.local.ThemeMode
 import com.example.minimaltv.ui.TvViewModel
 import com.example.minimaltv.ui.favorites.FavoritesScreen
+import com.example.minimaltv.ui.favorites.FavoritesViewModel
 import com.example.minimaltv.ui.playlist.PlaylistScreen
 import com.example.minimaltv.ui.playlist.AddPlaylistScreen
+import com.example.minimaltv.ui.playlist.RecentChannelsViewModel
 import com.example.minimaltv.ui.channel.ChannelListScreen
 import com.example.minimaltv.ui.player.VideoPlayerScreen
 import com.example.minimaltv.ui.settings.SettingsScreen
@@ -46,8 +48,8 @@ class MainActivity : AppCompatActivity() {
         )
         
         setContent {
-            val viewModel: TvViewModel = viewModel()
-            val themeMode by viewModel.settingsManager.themeMode
+            val tvViewModel: TvViewModel = viewModel()
+            val themeMode by tvViewModel.settingsManager.themeMode
             
             val darkTheme = when (themeMode) {
                 ThemeMode.LIGHT -> false
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             MinimalTVTheme(darkTheme = darkTheme) {
-                MainScreen(viewModel)
+                MainScreen(tvViewModel)
             }
         }
     }
@@ -72,9 +74,13 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
 }
 
 @Composable
-fun MainScreen(viewModel: TvViewModel) {
+fun MainScreen(tvViewModel: TvViewModel) {
     val navController = rememberNavController()
-    val favorites by viewModel.favorites.collectAsState()
+    val favoritesViewModel: FavoritesViewModel = viewModel()
+    val recentChannelsViewModel: RecentChannelsViewModel = viewModel()
+    
+    val favorites by favoritesViewModel.favorites.collectAsState()
+    val recentChannels by recentChannelsViewModel.recentChannels.collectAsState()
 
     val items = listOf(Screen.Playlist, Screen.Favorites, Screen.Settings)
 
@@ -118,37 +124,37 @@ fun MainScreen(viewModel: TvViewModel) {
         ) {
             composable(Screen.Playlist.route) {
                 LaunchedEffect(Unit) {
-                    viewModel.clearSearchQuery()
+                    tvViewModel.clearSearchQuery()
                 }
                 PlaylistScreen(
-                    viewModel = viewModel,
+                    tvViewModel = tvViewModel,
+                    recentChannels = recentChannels,
                     onAddClick = { navController.navigate(Screen.AddPlaylist.route) },
                     onPlaylistClick = { playlist ->
                         navController.navigate("channel_list/${playlist.id}/${playlist.name}")
                     },
-                    // 최근 시청 채널 등에서 직접 재생 시 (사이드바 비활성화 옵션 포함)
                     onChannelClick = { channel, enableSidebar ->
-                        viewModel.selectChannel(channel, enableSidebar)
+                        tvViewModel.selectChannel(channel, enableSidebar)
                         navController.navigate(Screen.Player.route)
                     },
-                    onDeletePlaylist = { viewModel.deletePlaylist(it) },
-                    onRefreshPlaylist = { viewModel.refreshPlaylist(it) },
+                    onDeletePlaylist = { tvViewModel.deletePlaylist(it) },
+                    onRefreshPlaylist = { tvViewModel.refreshPlaylist(it) },
                     onEditPlaylist = { playlist, name, epgUrl -> 
-                        viewModel.editPlaylist(playlist, name, epgUrl) 
+                        tvViewModel.editPlaylist(playlist, name, epgUrl) 
                     },
-                    onMovePlaylist = { playlist, up -> viewModel.movePlaylist(playlist, up) },
-                    onRefreshAll = { viewModel.refreshAllPlaylists() }
+                    onMovePlaylist = { playlist, up -> tvViewModel.movePlaylist(playlist, up) },
+                    onRefreshAll = { tvViewModel.refreshAllPlaylists() }
                 )
             }
             composable(Screen.AddPlaylist.route) {
                 AddPlaylistScreen(
                     onClose = { navController.popBackStack() },
                     onAddUrl = { name, url, epgUrl -> 
-                        viewModel.addPlaylistFromUrl(name, url, epgUrl)
+                        tvViewModel.addPlaylistFromUrl(name, url, epgUrl)
                         navController.popBackStack()
                     },
                     onAddLocalFile = { name, uri -> 
-                        viewModel.addPlaylistFromLocalFile(name, uri)
+                        tvViewModel.addPlaylistFromLocalFile(name, uri)
                         navController.popBackStack()
                     }
                 )
@@ -164,37 +170,36 @@ fun MainScreen(viewModel: TvViewModel) {
                 val playlistName = backStackEntry.arguments?.getString("playlistName") ?: "채널"
                 
                 LaunchedEffect(playlistId) {
-                    viewModel.loadChannelsForPlaylist(playlistId)
+                    tvViewModel.loadChannelsForPlaylist(playlistId)
                 }
 
                 ChannelListScreen(
-                    viewModel = viewModel,
+                    viewModel = tvViewModel,
                     categoryName = playlistName,
                     onBackClick = { navController.popBackStack() },
                     onChannelClick = { channel ->
-                        viewModel.selectChannel(channel, true)
+                        tvViewModel.selectChannel(channel, true)
                         navController.navigate(Screen.Player.route)
                     },
-                    onFavoriteToggle = { viewModel.toggleFavorite(it) }
+                    onFavoriteToggle = { tvViewModel.toggleFavorite(it) }
                 )
             }
             composable(Screen.Favorites.route) {
                 FavoritesScreen(
                     favoriteChannels = favorites,
-                    // 즐겨찾기 재생 시 사이드바 비활성화
                     onChannelClick = { channel ->
-                        viewModel.selectChannel(channel, false)
+                        tvViewModel.selectChannel(channel, false)
                         navController.navigate(Screen.Player.route)
                     },
-                    onFavoriteToggle = { viewModel.toggleFavorite(it) }
+                    onFavoriteToggle = { favoritesViewModel.toggleFavorite(it) }
                 )
             }
             composable(Screen.Settings.route) {
-                SettingsScreen(viewModel = viewModel)
+                SettingsScreen(viewModel = tvViewModel)
             }
             composable(Screen.Player.route) {
                 VideoPlayerScreen(
-                    viewModel = viewModel,
+                    viewModel = tvViewModel,
                     onBackClick = { navController.popBackStack() }
                 )
             }
